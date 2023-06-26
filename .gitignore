@@ -1,0 +1,6 @@
+.vscode/
+.idea/
+*.dev.*
+.vendor/
+docs/node_modules
+docs/web_deploy
