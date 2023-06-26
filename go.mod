@@ -1,6 +1,6 @@
 module gitlab.com/rarimo/identity/kyc-service
 
-go 1.20
+go 1.18
 
 require (
 	github.com/alecthomas/kingpin v1.3.7
