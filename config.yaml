@@ -8,6 +8,9 @@ db:
 listener:
   addr: :8000
 
+unstoppable_domains:
+  auth_base_url: "https://auth.unstoppabledomains.com"
+
 cop:
   disabled: true
   endpoint: "http://..."

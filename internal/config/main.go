@@ -13,6 +13,8 @@ type Config interface {
 	pgdb.Databaser
 	types.Copuser
 	comfig.Listenerer
+
+	UnstoppableDomains() *UnstoppableDomains
 }
 
 type config struct {
@@ -21,6 +23,8 @@ type config struct {
 	types.Copuser
 	comfig.Listenerer
 	getter kv.Getter
+
+	unstoppableDomains comfig.Once
 }
 
 func New(getter kv.Getter) Config {
