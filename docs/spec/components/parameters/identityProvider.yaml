@@ -1,0 +1,13 @@
+name: identity-provider
+in: path
+description: The identity provider's name
+required: true
+example: unstoppable_domain
+schema:
+  type: string
+  format: string
+  enum:
+    - unstoppable_domains
+    - civic
+    - worldcoin
+    - gitcoin_passport

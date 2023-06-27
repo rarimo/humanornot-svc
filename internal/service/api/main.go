@@ -10,24 +10,27 @@ import (
 	"gitlab.com/distributed_lab/logan/v3/errors"
 
 	"gitlab.com/rarimo/identity/kyc-service/internal/config"
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core"
 )
 
 type service struct {
-	log      *logan.Entry
-	copus    types.Copus
-	listener net.Listener
+	log        *logan.Entry
+	copus      types.Copus
+	listener   net.Listener
+	kycService core.KYCService
 }
 
-func newService(ctx context.Context, cfg config.Config) *service {
+func newService(cfg config.Config) *service {
 	return &service{
-		log:      cfg.Log(),
-		copus:    cfg.Copus(),
-		listener: cfg.Listener(),
+		log:        cfg.Log(),
+		copus:      cfg.Copus(),
+		listener:   cfg.Listener(),
+		kycService: core.NewKYCService(cfg),
 	}
 }
 
 func Run(ctx context.Context, cfg config.Config) {
-	svc := newService(ctx, cfg)
+	svc := newService(cfg)
 
 	if err := svc.copus.RegisterChi(svc.router()); err != nil {
 		panic(errors.Wrap(err, "cop failed"))

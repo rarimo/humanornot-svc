@@ -2,7 +2,6 @@ package pg
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/fatih/structs"
 	"github.com/google/uuid"
@@ -62,10 +61,9 @@ func (q *usersQ) Get(id uuid.UUID) (*data.User, error) {
 }
 
 func (q *usersQ) Insert(user *data.User) error {
-	err := q.db.Get(&user.ID,
+	err := q.db.Exec(
 		sq.Insert(usersTableName).
-			SetMap(structs.Map(user)).
-			Suffix(fmt.Sprintf("returning %s", idColumnName)),
+			SetMap(structs.Map(user)),
 	)
 	if err != nil {
 		return errors.Wrap(err, "failed to insert rows")

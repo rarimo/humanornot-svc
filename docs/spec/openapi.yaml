@@ -3,6 +3,3 @@ info:
   version: 1.0.0
   title: kyc-service
   description: ''
-servers:
-  - url: 'https://api.demo.tokend.io'
-    description: TokenD Developer Environment

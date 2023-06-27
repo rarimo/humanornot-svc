@@ -1,0 +1,39 @@
+post:
+  tags:
+    - Verification
+  summary: It verifies user's data with one of the identity provider.
+  operationId: issueClaim
+  parameters:
+    - $ref: '#/components/parameters/identityProvider'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: '#/components/schemas/Verify'
+  responses:
+    '200':
+      description: >-
+        Success. User verification is in progress, use verificationID to ping
+        the status endpoint
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                $ref: '#/components/schemas/VerifyID'
+    '204':
+      description: No content. User successfully verified
+    '400':
+      description: Bad request
+    '401':
+      description: Unauthorized. KYC failed
+    '500':
+      description: Internal error

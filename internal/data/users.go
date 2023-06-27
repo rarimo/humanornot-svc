@@ -1,6 +1,8 @@
 package data
 
 import (
+	"time"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/google/uuid"
 	iden3core "github.com/iden3/go-iden3-core"
@@ -20,16 +22,17 @@ type UsersQ interface {
 }
 
 type User struct {
-	ID     uuid.UUID  `json:"id"     db:"id"`
-	Status UserStatus `json:"status" db:"status"`
+	ID        uuid.UUID  `db:"id"         structs:"id"`
+	Status    UserStatus `db:"status"     structs:"status"`
+	CreatedAt time.Time  `db:"created_at" structs:"created_at"`
 
 	// IdentityID is a unique user's ident3 identity id
-	IdentityID iden3core.ID   `json:"identity_id" db:"identity_id"`
-	EthAddress common.Address `json:"eth_address" db:"eth_address"`
+	IdentityID iden3core.ID   `db:"identity_id" structs:"identity_id"`
+	EthAddress common.Address `db:"eth_address" structs:"eth_address"`
 
 	// ProviderData Store raw information that received from identity provider.
 	// Its json structure depends on identity provider.
-	ProviderData []byte `json:"provider_data" db:"provider_data"`
+	ProviderData []byte `db:"provider_data" structs:"provider_data"`
 }
 
 type UserStatus string
