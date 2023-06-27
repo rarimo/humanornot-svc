@@ -28,7 +28,7 @@ type User struct {
 	EthAddress common.Address `json:"eth_address" db:"eth_address"`
 
 	// ProviderData Store raw information that received from identity provider.
-	// Its structure depends on identity provider.
+	// Its json structure depends on identity provider.
 	ProviderData []byte `json:"provider_data" db:"provider_data"`
 }
 
