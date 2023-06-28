@@ -10,10 +10,11 @@ import (
 	"gitlab.com/rarimo/identity/kyc-service/internal/data"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/api/requests"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/api/responses"
-	unstoppabledomains "gitlab.com/rarimo/identity/kyc-service/internal/service/core/unstoppable_domains"
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core"
+	unstopdom "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/unstoppable_domains"
 )
 
-func UDVerify(w http.ResponseWriter, r *http.Request) {
+func Verify(w http.ResponseWriter, r *http.Request) {
 	req, err := requests.NewVerify(r)
 	if err != nil {
 		Log(r).WithField("reason", err).Debug("Bad request")
@@ -23,12 +24,19 @@ func UDVerify(w http.ResponseWriter, r *http.Request) {
 
 	user, err := KYCService(r).NewVerifyRequest(req)
 	switch {
-	case errors.Is(err, unstoppabledomains.ErrInvalidUsersSignature):
+	case errors.Is(err, core.ErrUserAlreadyVerifiedByEthAddress),
+		errors.Is(err, core.ErrUserAlreadyVerifiedByIdentityID):
+		Log(r).WithField("reason", err).Debug("Conflict")
+		ape.RenderErr(w, problems.Conflict())
+		return
+	case errors.Is(err, unstopdom.ErrInvalidUsersSignature),
+		errors.Is(err, unstopdom.ErrInvalidAccessToken):
 		Log(r).WithField("reason", err).
 			WithField("identity-provider", req.IdentityProviderName).
 			WithField("provider-data", string(req.ProviderData)).
 			Debug("Unauthorized")
 		ape.RenderErr(w, problems.Unauthorized())
+		return
 	case err != nil:
 		Log(r).WithError(err).
 			WithField("identity-provider", req.IdentityProviderName).

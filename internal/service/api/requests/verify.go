@@ -10,7 +10,7 @@ import (
 	iden3core "github.com/iden3/go-iden3-core"
 	"github.com/pkg/errors"
 
-	"gitlab.com/rarimo/identity/kyc-service/internal/service/core"
+	providers "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers"
 	"gitlab.com/rarimo/identity/kyc-service/resources"
 )
 
@@ -19,7 +19,7 @@ const (
 )
 
 type VerifyRequest struct {
-	IdentityProviderName core.IdentityProviderName
+	IdentityProviderName providers.IdentityProviderName
 	ProviderData         []byte
 	IdentityID           iden3core.ID
 }
@@ -50,6 +50,9 @@ func (req *verifyRequest) validate() error {
 		fmt.Sprintf("path/%s", IdentityProviderPathParam): validation.Validate(
 			req.IdentityProviderName, validation.Required, validation.By(MustBeValidIdentityProviderName),
 		),
+		"body/data/type": validation.Validate(
+			req.Data.Type, validation.Required, validation.In(resources.VERIFY),
+		),
 		"body/data/attributes/provider_data": validation.Validate(
 			req.Data.Attributes.ProviderData, validation.Required, validation.By(MustBeValidJSONOrEmpty),
 		),
@@ -63,7 +66,7 @@ func (req *verifyRequest) parse() *VerifyRequest {
 	identityID, _ := iden3core.IDFromString(req.Data.Attributes.IdentityId)
 
 	return &VerifyRequest{
-		IdentityProviderName: core.IdentityProviderNames[req.IdentityProviderName],
+		IdentityProviderName: providers.IdentityProviderNames[req.IdentityProviderName],
 		ProviderData:         req.Data.Attributes.ProviderData,
 		IdentityID:           identityID,
 	}
@@ -75,7 +78,7 @@ func MustBeValidIdentityProviderName(src interface{}) error {
 		return errors.New("it is not a string")
 	}
 
-	if _, ok := core.IdentityProviderNames[nameRaw]; !ok {
+	if _, ok := providers.IdentityProviderNames[nameRaw]; !ok {
 		return errors.New("it is not a valid identity provider name")
 	}
 

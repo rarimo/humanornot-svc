@@ -1,15 +1,13 @@
 package config
 
 import (
-	"net/url"
-
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/figure"
 	"gitlab.com/distributed_lab/kit/kv"
 )
 
 type UnstoppableDomains struct {
-	AuthBaseURL *url.URL `fig:"auth_base_url"`
+	AuthBaseURL string `fig:"auth_base_url"`
 }
 
 func (c *config) UnstoppableDomains() *UnstoppableDomains {

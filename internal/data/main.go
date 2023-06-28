@@ -3,7 +3,7 @@ package data
 type MasterQ interface {
 	New() MasterQ
 
-	VerificationUsersQ() UsersQ
+	UsersQ() UsersQ
 
 	Transaction(func() error) error
 }

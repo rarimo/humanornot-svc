@@ -41,14 +41,10 @@ func (q *usersQ) Select() ([]data.User, error) {
 	return result, nil
 }
 
-func (q *usersQ) Get(id uuid.UUID) (*data.User, error) {
+func (q *usersQ) Get() (*data.User, error) {
 	var result data.User
 
-	err := q.db.Get(&result,
-		sq.Select("*").
-			From(usersTableName).
-			Where(sq.Eq{idColumnName: id}),
-	)
+	err := q.db.Get(&result, q.sel)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -61,9 +57,12 @@ func (q *usersQ) Get(id uuid.UUID) (*data.User, error) {
 }
 
 func (q *usersQ) Insert(user *data.User) error {
+	clauses := structs.Map(user)
+	clauses[identityIDColumnName] = user.IdentityID
+
 	err := q.db.Exec(
 		sq.Insert(usersTableName).
-			SetMap(structs.Map(user)),
+			SetMap(clauses),
 	)
 	if err != nil {
 		return errors.Wrap(err, "failed to insert rows")
@@ -102,5 +101,10 @@ func (q *usersQ) WhereStatus(status data.UserStatus) data.UsersQ {
 
 func (q *usersQ) WhereEthAddress(address common.Address) data.UsersQ {
 	q.sel = q.sel.Where(sq.Eq{ethAddressColumnName: address})
+	return q
+}
+
+func (q *usersQ) WhereIdentityID(identityID *data.IdentityID) data.UsersQ {
+	q.sel = q.sel.Where(sq.Eq{identityIDColumnName: identityID})
 	return q
 }

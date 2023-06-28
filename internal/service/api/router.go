@@ -25,7 +25,7 @@ func (s *service) router() chi.Router {
 	r.Route("/integrations/kyc-service", func(r chi.Router) {
 		r.Route("/v1", func(r chi.Router) {
 			r.Route("/public", func(r chi.Router) {
-				r.Post(fmt.Sprintf("/verify/%s", requests.IdentityProviderPathParam), handlers.UDVerify)
+				r.Post(fmt.Sprintf("/verify/{%s}", requests.IdentityProviderPathParam), handlers.Verify)
 			})
 		})
 	})

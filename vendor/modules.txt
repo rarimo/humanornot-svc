@@ -1,24 +1,30 @@
-# github.com/Masterminds/squirrel v1.4.0
-## explicit
+# github.com/Masterminds/squirrel v1.5.4
+## explicit; go 1.14
 github.com/Masterminds/squirrel
-# github.com/alecthomas/kingpin v1.3.7
+# github.com/alecthomas/kingpin v2.2.6+incompatible
 ## explicit
 github.com/alecthomas/kingpin
+# github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+## explicit
+github.com/alecthomas/template
+github.com/alecthomas/template/parse
 # github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 ## explicit; go 1.15
 github.com/alecthomas/units
-# github.com/andybalholm/brotli v1.0.4
+# github.com/andybalholm/brotli v1.0.5
 ## explicit; go 1.12
 github.com/andybalholm/brotli
-# github.com/btcsuite/btcd/btcec/v2 v2.2.0
+# github.com/btcsuite/btcd/btcec/v2 v2.3.2
 ## explicit; go 1.17
 github.com/btcsuite/btcd/btcec/v2
 github.com/btcsuite/btcd/btcec/v2/ecdsa
-# github.com/certifi/gocertifi v0.0.0-20200211180108-c7c1fbc02894
+# github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2
+## explicit; go 1.17
+# github.com/certifi/gocertifi v0.0.0-20210507211836-431795d63e8d
 ## explicit; go 1.12
 github.com/certifi/gocertifi
-# github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1
-## explicit; go 1.16
+# github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0
+## explicit; go 1.17
 github.com/decred/dcrd/dcrec/secp256k1/v4
 github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa
 # github.com/ethereum/go-ethereum v1.12.0
@@ -45,13 +51,14 @@ github.com/gaukas/godicttls
 # github.com/getsentry/raven-go v0.2.0
 ## explicit
 github.com/getsentry/raven-go
-# github.com/getsentry/sentry-go v0.18.0
-## explicit; go 1.19
+# github.com/getsentry/sentry-go v0.22.0
+## explicit; go 1.18
 github.com/getsentry/sentry-go
 github.com/getsentry/sentry-go/internal/debug
 github.com/getsentry/sentry-go/internal/otel/baggage
 github.com/getsentry/sentry-go/internal/otel/baggage/internal/baggage
 github.com/getsentry/sentry-go/internal/ratelimit
+github.com/getsentry/sentry-go/internal/traceparser
 # github.com/go-chi/chi v4.1.2+incompatible
 ## explicit
 github.com/go-chi/chi
@@ -59,7 +66,7 @@ github.com/go-chi/chi/middleware
 # github.com/go-gorp/gorp/v3 v3.1.0
 ## explicit; go 1.18
 github.com/go-gorp/gorp/v3
-# github.com/go-ozzo/ozzo-validation/v4 v4.2.1
+# github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 ## explicit; go 1.13
 github.com/go-ozzo/ozzo-validation/v4
 # github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572
@@ -69,7 +76,7 @@ github.com/go-task/slim-sprig
 ## explicit; go 1.11
 github.com/golang/mock/mockgen
 github.com/golang/mock/mockgen/model
-# github.com/google/jsonapi v0.0.0-20200226002910-c8283f632fb7
+# github.com/google/jsonapi v1.0.0
 ## explicit
 github.com/google/jsonapi
 # github.com/google/pprof v0.0.0-20230602150820-91b7bce49751
@@ -96,7 +103,7 @@ github.com/hashicorp/hcl/hcl/token
 github.com/hashicorp/hcl/json/parser
 github.com/hashicorp/hcl/json/scanner
 github.com/hashicorp/hcl/json/token
-# github.com/holiman/uint256 v1.2.2-0.20230321075855-87b91420868c
+# github.com/holiman/uint256 v1.2.2
 ## explicit; go 1.18
 github.com/holiman/uint256
 # github.com/iden3/go-iden3-core v1.0.2
@@ -127,12 +134,12 @@ github.com/imroc/req/v3/internal/transport
 github.com/imroc/req/v3/internal/util
 github.com/imroc/req/v3/pkg/altsvc
 github.com/imroc/req/v3/pkg/tls
-# github.com/jmoiron/sqlx v1.2.0
-## explicit
+# github.com/jmoiron/sqlx v1.3.5
+## explicit; go 1.10
 github.com/jmoiron/sqlx
 github.com/jmoiron/sqlx/reflectx
-# github.com/klauspost/compress v1.15.15
-## explicit; go 1.17
+# github.com/klauspost/compress v1.16.6
+## explicit; go 1.18
 github.com/klauspost/compress
 github.com/klauspost/compress/fse
 github.com/klauspost/compress/huff0
@@ -146,15 +153,15 @@ github.com/lann/builder
 # github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0
 ## explicit
 github.com/lann/ps
-# github.com/lib/pq v1.10.7
+# github.com/lib/pq v1.10.9
 ## explicit; go 1.13
 github.com/lib/pq
 github.com/lib/pq/oid
 github.com/lib/pq/scram
-# github.com/magiconair/properties v1.8.0
-## explicit
+# github.com/magiconair/properties v1.8.7
+## explicit; go 1.19
 github.com/magiconair/properties
-# github.com/mitchellh/mapstructure v1.4.1
+# github.com/mitchellh/mapstructure v1.5.0
 ## explicit; go 1.14
 github.com/mitchellh/mapstructure
 # github.com/mr-tron/base58 v1.2.0
@@ -181,9 +188,13 @@ github.com/onsi/ginkgo/v2/internal/interrupt_handler
 github.com/onsi/ginkgo/v2/internal/parallel_support
 github.com/onsi/ginkgo/v2/reporters
 github.com/onsi/ginkgo/v2/types
-# github.com/pelletier/go-toml v1.2.0
-## explicit
-github.com/pelletier/go-toml
+# github.com/pelletier/go-toml/v2 v2.0.8
+## explicit; go 1.16
+github.com/pelletier/go-toml/v2
+github.com/pelletier/go-toml/v2/internal/characters
+github.com/pelletier/go-toml/v2/internal/danger
+github.com/pelletier/go-toml/v2/internal/tracker
+github.com/pelletier/go-toml/v2/unstable
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors
@@ -217,29 +228,45 @@ github.com/quic-go/quic-go/quicvarint
 github.com/refraction-networking/utls
 github.com/refraction-networking/utls/cpu
 github.com/refraction-networking/utls/internal/helper
+# github.com/rogpeppe/go-internal v1.10.0
+## explicit; go 1.19
 # github.com/rubenv/sql-migrate v1.5.1
 ## explicit; go 1.17
 github.com/rubenv/sql-migrate
 github.com/rubenv/sql-migrate/sqlparse
-# github.com/sirupsen/logrus v1.9.0
+# github.com/sirupsen/logrus v1.9.3
 ## explicit; go 1.13
 github.com/sirupsen/logrus
-# github.com/spf13/afero v1.1.2
-## explicit
+# github.com/spf13/afero v1.9.5
+## explicit; go 1.16
 github.com/spf13/afero
+github.com/spf13/afero/internal/common
 github.com/spf13/afero/mem
-# github.com/spf13/cast v1.5.0
+# github.com/spf13/cast v1.5.1
 ## explicit; go 1.18
 github.com/spf13/cast
-# github.com/spf13/jwalterweatherman v1.0.0
+# github.com/spf13/jwalterweatherman v1.1.0
 ## explicit
 github.com/spf13/jwalterweatherman
-# github.com/spf13/pflag v1.0.3
-## explicit
+# github.com/spf13/pflag v1.0.5
+## explicit; go 1.12
 github.com/spf13/pflag
-# github.com/spf13/viper v1.3.2
-## explicit
+# github.com/spf13/viper v1.16.0
+## explicit; go 1.17
 github.com/spf13/viper
+github.com/spf13/viper/internal/encoding
+github.com/spf13/viper/internal/encoding/dotenv
+github.com/spf13/viper/internal/encoding/hcl
+github.com/spf13/viper/internal/encoding/ini
+github.com/spf13/viper/internal/encoding/javaproperties
+github.com/spf13/viper/internal/encoding/json
+github.com/spf13/viper/internal/encoding/toml
+github.com/spf13/viper/internal/encoding/yaml
+# github.com/stretchr/testify v1.8.4
+## explicit; go 1.20
+# github.com/subosito/gotenv v1.4.2
+## explicit; go 1.18
+github.com/subosito/gotenv
 # gitlab.com/distributed_lab/ape v1.7.1
 ## explicit; go 1.14
 gitlab.com/distributed_lab/ape
@@ -264,12 +291,15 @@ gitlab.com/distributed_lab/logan/v3
 gitlab.com/distributed_lab/logan/v3/errors
 gitlab.com/distributed_lab/logan/v3/fields
 gitlab.com/distributed_lab/logan/v3/hook/sentry
-# gitlab.com/distributed_lab/lorem v0.2.0
+# gitlab.com/distributed_lab/lorem v0.2.1
 ## explicit
 gitlab.com/distributed_lab/lorem
-# gitlab.com/distributed_lab/running v0.0.0-20200706131153-4af0e83eb96c
+# gitlab.com/distributed_lab/running v1.6.0
 ## explicit
 gitlab.com/distributed_lab/running
+# gitlab.com/rarimo/identity/issuer v0.0.0-20230628124036-09e8c7aa4a52
+## explicit; go 1.19
+gitlab.com/rarimo/identity/issuer/resources
 # golang.org/x/crypto v0.10.0
 ## explicit; go 1.17
 golang.org/x/crypto/chacha20
@@ -282,7 +312,7 @@ golang.org/x/crypto/hkdf
 golang.org/x/crypto/internal/alias
 golang.org/x/crypto/internal/poly1305
 golang.org/x/crypto/sha3
-# golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
+# golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df
 ## explicit; go 1.20
 golang.org/x/exp/constraints
 # golang.org/x/mod v0.11.0
@@ -352,6 +382,11 @@ golang.org/x/tools/internal/gocommand
 golang.org/x/tools/internal/gopathwalk
 golang.org/x/tools/internal/imports
 golang.org/x/tools/internal/typeparams
-# gopkg.in/yaml.v2 v2.4.0
-## explicit; go 1.15
-gopkg.in/yaml.v2
+# google.golang.org/protobuf v1.31.0
+## explicit; go 1.11
+# gopkg.in/ini.v1 v1.67.0
+## explicit
+gopkg.in/ini.v1
+# gopkg.in/yaml.v3 v3.0.1
+## explicit
+gopkg.in/yaml.v3

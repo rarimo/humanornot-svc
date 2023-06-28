@@ -14,6 +14,7 @@ const (
 	idColumnName         = "id"
 	statusColumnName     = "status"
 	ethAddressColumnName = "eth_address"
+	identityIDColumnName = "identity_id"
 )
 
 var sortColumns = map[string]string{
@@ -34,7 +35,7 @@ func (q *masterQ) New() data.MasterQ {
 	return NewMasterQ(q.db)
 }
 
-func (q *masterQ) VerificationUsersQ() data.UsersQ {
+func (q *masterQ) UsersQ() data.UsersQ {
 	return NewUsersQ(q.db)
 }
 

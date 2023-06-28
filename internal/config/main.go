@@ -15,6 +15,7 @@ type Config interface {
 	comfig.Listenerer
 
 	UnstoppableDomains() *UnstoppableDomains
+	Issuer() *Issuer
 }
 
 type config struct {
@@ -25,6 +26,7 @@ type config struct {
 	getter kv.Getter
 
 	unstoppableDomains comfig.Once
+	issuer             comfig.Once
 }
 
 func New(getter kv.Getter) Config {
