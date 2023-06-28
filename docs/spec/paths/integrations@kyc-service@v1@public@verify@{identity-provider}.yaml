@@ -35,5 +35,7 @@ post:
       description: Bad request
     '401':
       description: Unauthorized. KYC failed
+    '409':
+      description: Conflict. User already verified
     '500':
       description: Internal error
