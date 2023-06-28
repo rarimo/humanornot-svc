@@ -1,6 +1,6 @@
 module gitlab.com/rarimo/identity/kyc-service
 
-go 1.18
+go 1.19
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
