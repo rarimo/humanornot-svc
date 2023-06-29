@@ -11,6 +11,8 @@ import (
 	"gitlab.com/distributed_lab/kit/pgdb"
 )
 
+var ZeroAddress = common.HexToAddress("0x0000000000000000000000000000000000000000")
+
 type UsersQ interface {
 	Get() (*User, error)
 	Select() ([]User, error)

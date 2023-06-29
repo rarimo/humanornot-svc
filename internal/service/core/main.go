@@ -1,6 +1,7 @@
 package core
 
 import (
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/worldcoin"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,6 +34,10 @@ func NewKYCService(cfg config.Config) KYCService {
 			providers.UnstoppableDomainsIdentityProvider: unstopdom.New(
 				cfg.Log().WithField("provider", providers.UnstoppableDomainsIdentityProvider),
 				cfg.UnstoppableDomains(),
+			),
+			providers.WorldCoinIdentityProvider: worldcoin.NewIdentityProvider(
+				cfg.Log().WithField("provider", providers.WorldCoinIdentityProvider),
+				cfg.WorldcoinSettings(),
 			),
 		},
 	}

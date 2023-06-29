@@ -60,6 +60,10 @@ func (q *usersQ) Insert(user *data.User) error {
 	clauses := structs.Map(user)
 	clauses[identityIDColumnName] = user.IdentityID
 
+	if user.EthAddress == data.ZeroAddress {
+		clauses[ethAddressColumnName] = nil
+	}
+
 	err := q.db.Exec(
 		sq.Insert(usersTableName).
 			SetMap(clauses),

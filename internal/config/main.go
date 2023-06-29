@@ -14,6 +14,7 @@ type Config interface {
 	types.Copuser
 	comfig.Listenerer
 
+	WorldcoinSettings() *WorldcoinSettings
 	UnstoppableDomains() *UnstoppableDomains
 	Issuer() *Issuer
 }
@@ -26,6 +27,7 @@ type config struct {
 	getter kv.Getter
 
 	unstoppableDomains comfig.Once
+	worldcoinSettings  comfig.Once
 	issuer             comfig.Once
 }
 
