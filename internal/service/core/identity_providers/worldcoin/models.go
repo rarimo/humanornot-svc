@@ -2,7 +2,7 @@ package worldcoin
 
 import (
 	"fmt"
-	"gitlab.com/distributed_lab/logan/v3/errors"
+	"github.com/pkg/errors"
 )
 
 const (

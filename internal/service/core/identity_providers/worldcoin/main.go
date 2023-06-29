@@ -3,8 +3,8 @@ package worldcoin
 import (
 	"encoding/json"
 	"github.com/imroc/req/v3"
+	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
-	"gitlab.com/distributed_lab/logan/v3/errors"
 	"gitlab.com/rarimo/identity/kyc-service/internal/config"
 	"gitlab.com/rarimo/identity/kyc-service/internal/data"
 	"net/http"
