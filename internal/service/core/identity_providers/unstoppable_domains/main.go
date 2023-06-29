@@ -2,10 +2,10 @@ package unstopdom
 
 import (
 	"encoding/json"
+	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/imroc/req/v3"
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -91,17 +91,12 @@ func (u *UnstoppableDomains) retrieveUserInfo(accessToken string) (*UserInfo, er
 }
 
 func verifyUserInfoSignature(userInfo *UserInfo) (bool, error) {
-	signatureBytes, err := hexutil.Decode(userInfo.EIP4361Signature)
-	if err != nil {
-		return false, errors.Wrap(err, "failed to decode signature from HEX")
-	}
-
 	if ok := common.IsHexAddress(userInfo.WalletAddress); !ok {
 		return false, ErrInvalidWalletAddress
 	}
 
-	result, err := verifyEIP191Signature(
-		signatureBytes, []byte(userInfo.EIP4361Message), common.HexToAddress(userInfo.WalletAddress),
+	result, err := crypto.VerifyEIP191Signature(
+		userInfo.EIP4361Signature, userInfo.EIP4361Message, common.HexToAddress(userInfo.WalletAddress),
 	)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to verify EIP191 signature")
