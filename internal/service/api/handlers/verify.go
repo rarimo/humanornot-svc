@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/worldcoin"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -29,7 +30,9 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		Log(r).WithField("reason", err).Debug("Conflict")
 		ape.RenderErr(w, problems.Conflict())
 		return
-	case errors.Is(err, unstopdom.ErrInvalidUsersSignature),
+	case errors.Is(err, worldcoin.ErrInvalidIdToken),
+		errors.Is(err, worldcoin.ErrNotLikelyHuman),
+		errors.Is(err, unstopdom.ErrInvalidUsersSignature),
 		errors.Is(err, unstopdom.ErrInvalidAccessToken):
 		Log(r).WithField("reason", err).
 			WithField("identity-provider", req.IdentityProviderName).
