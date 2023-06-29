@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	nonceCleaner "gitlab.com/rarimo/identity/kyc-service/internal/service/nonce_cleaner"
 	"os"
 	"os/signal"
 	"sync"
@@ -48,7 +49,7 @@ func Run(args []string) bool {
 
 	switch cmd {
 	case serviceCmd.FullCommand():
-		run(wg, ctx, cfg, api.Run)
+		run(wg, ctx, cfg, api.Run, nonceCleaner.Run)
 	case migrateUpCmd.FullCommand():
 		err = MigrateUp(cfg)
 	case migrateDownCmd.FullCommand():
@@ -88,12 +89,14 @@ func Run(args []string) bool {
 
 func run(
 	wg *sync.WaitGroup, ctx context.Context,
-	cfg config.Config, runner func(context.Context, config.Config),
+	cfg config.Config, runners ...RunnerFunc,
 ) {
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	for _, runner := range runners {
+		wg.Add(1)
 
-		runner(ctx, cfg)
-	}()
+		go func(run RunnerFunc) {
+			defer wg.Done()
+			run(ctx, cfg)
+		}(runner)
+	}
 }

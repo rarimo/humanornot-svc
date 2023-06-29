@@ -39,6 +39,10 @@ func (q *masterQ) UsersQ() data.UsersQ {
 	return NewUsersQ(q.db)
 }
 
+func (q *masterQ) NonceQ() data.NonceQ {
+	return newNonceQ(q.db)
+}
+
 func (q *masterQ) Transaction(fn func() error) error {
 	return q.db.Transaction(func() error {
 		return fn()
