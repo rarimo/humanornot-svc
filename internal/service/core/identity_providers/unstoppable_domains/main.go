@@ -52,7 +52,8 @@ func (u *UnstoppableDomains) Verify(user *data.User, verifyDataRaw []byte) error
 		return ErrInvalidUsersSignature
 	}
 
-	user.EthAddress = common.HexToAddress(userInfo.WalletAddress)
+	address := common.HexToAddress(userInfo.WalletAddress)
+	user.EthAddress = &address
 	user.Status = data.UserStatusVerified
 
 	domainInfoRaw, err := json.Marshal(Domain{

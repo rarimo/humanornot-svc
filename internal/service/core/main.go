@@ -59,17 +59,18 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 		IdentityID: data.NewIdentityID(req.IdentityID),
 	}
 
-	err = k.identityProviders[req.IdentityProviderName].Verify(&newUser, req.ProviderData)
-	if err != nil {
+	if err = k.identityProviders[req.IdentityProviderName].Verify(&newUser, req.ProviderData); err != nil {
 		return nil, errors.Wrap(err, "failed to verify user")
 	}
 
-	prevUser, err = k.db.UsersQ().WhereEthAddress(newUser.EthAddress).Get()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get user from db with the same ethAddress")
-	}
-	if prevUser != nil {
-		return nil, ErrUserAlreadyVerifiedByEthAddress
+	if newUser.EthAddress != nil {
+		prevUser, err = k.db.UsersQ().WhereEthAddress(*newUser.EthAddress).Get()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get user from db with the same ethAddress")
+		}
+		if prevUser != nil {
+			return nil, ErrUserAlreadyVerifiedByEthAddress
+		}
 	}
 
 	if newUser.Status == data.UserStatusVerified {

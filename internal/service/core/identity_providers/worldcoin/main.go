@@ -49,7 +49,7 @@ func (w *Worldcoin) Verify(user *data.User, verifyDataRaw []byte) error {
 	user.Status = data.UserStatusVerified
 	user.ProviderData = userInfoRaw
 	// as we don't have the user's eth address, we set it to the zero address
-	user.EthAddress = data.ZeroAddress
+	user.EthAddress = nil
 
 	return nil
 }

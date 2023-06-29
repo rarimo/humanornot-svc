@@ -11,8 +11,6 @@ import (
 	"gitlab.com/distributed_lab/kit/pgdb"
 )
 
-var ZeroAddress = common.HexToAddress("0x0000000000000000000000000000000000000000")
-
 type UsersQ interface {
 	Get() (*User, error)
 	Select() ([]User, error)
@@ -32,8 +30,8 @@ type User struct {
 	CreatedAt time.Time  `db:"created_at" structs:"created_at"`
 
 	// IdentityID is a unique user's ident3 identity id
-	IdentityID *IdentityID    `db:"identity_id" structs:"-"`
-	EthAddress common.Address `db:"eth_address" structs:"eth_address"`
+	IdentityID *IdentityID     `db:"identity_id" structs:"-"`
+	EthAddress *common.Address `db:"eth_address" structs:"eth_address"`
 
 	// ProviderData Store raw information that received from identity provider.
 	// Its json structure depends on identity provider.
