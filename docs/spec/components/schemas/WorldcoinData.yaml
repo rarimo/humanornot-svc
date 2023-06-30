@@ -3,7 +3,7 @@ description: Worldcoin provider's data
 required:
   - id_token
 properties:
-  access_token:
+  id_token:
     type: string
     format: string
     description: >-

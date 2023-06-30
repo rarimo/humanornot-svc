@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-
 	"github.com/go-chi/chi"
 	"gitlab.com/distributed_lab/ape"
 
@@ -19,6 +18,7 @@ func (s *service) router() chi.Router {
 		ape.CtxMiddleware(
 			handlers.CtxLog(s.log),
 			handlers.CtxKYCService(s.kycService),
+			handlers.CtxMasterQueryer(s.masterQ),
 		),
 	)
 
@@ -26,6 +26,7 @@ func (s *service) router() chi.Router {
 		r.Route("/v1", func(r chi.Router) {
 			r.Route("/public", func(r chi.Router) {
 				r.Post(fmt.Sprintf("/verify/{%s}", requests.IdentityProviderPathParam), handlers.Verify)
+				r.Post("nonce", handlers.GetNonce)
 			})
 		})
 	})

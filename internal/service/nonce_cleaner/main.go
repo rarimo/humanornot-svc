@@ -30,7 +30,7 @@ func (s *NonceCleaner) Run(ctx context.Context) {
 		func(ctx context.Context) error {
 			return s.storage.FilterExpired().Delete()
 		},
-		12*time.Hour,
+		30*time.Minute,
 		1*time.Second,
 		5*time.Second,
 	)

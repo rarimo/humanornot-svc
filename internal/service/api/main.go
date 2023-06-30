@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"gitlab.com/rarimo/identity/kyc-service/internal/data"
+	"gitlab.com/rarimo/identity/kyc-service/internal/data/pg"
 	"net"
 
 	"gitlab.com/distributed_lab/ape"
@@ -18,6 +20,7 @@ type service struct {
 	copus      types.Copus
 	listener   net.Listener
 	kycService core.KYCService
+	masterQ    data.MasterQ
 }
 
 func newService(cfg config.Config) *service {
@@ -26,6 +29,7 @@ func newService(cfg config.Config) *service {
 		copus:      cfg.Copus(),
 		listener:   cfg.Listener(),
 		kycService: core.NewKYCService(cfg),
+		masterQ:    pg.NewMasterQ(cfg.DB()),
 	}
 }
 

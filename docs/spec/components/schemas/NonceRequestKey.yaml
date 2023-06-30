@@ -1,0 +1,12 @@
+type: object
+required:
+  - type
+  - id
+properties:
+  type:
+    type: string
+    enum:
+      - nonce_request
+  id:
+    type: string
+    format: string
