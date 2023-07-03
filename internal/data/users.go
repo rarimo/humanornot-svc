@@ -44,6 +44,7 @@ const (
 	UserStatusInitialized UserStatus = "initialized"
 	UserStatusPending     UserStatus = "pending"
 	UserStatusVerified    UserStatus = "verified"
+	UserStatusRejected    UserStatus = "rejected"
 )
 
 type IdentityID struct {

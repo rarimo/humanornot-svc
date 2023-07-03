@@ -16,6 +16,7 @@ type Config interface {
 
 	WorldcoinSettings() *WorldcoinSettings
 	UnstoppableDomains() *UnstoppableDomains
+	GitcoinPassportSettings() *GitcoinPassportSettings
 	Issuer() *Issuer
 }
 
@@ -26,9 +27,10 @@ type config struct {
 	comfig.Listenerer
 	getter kv.Getter
 
-	unstoppableDomains comfig.Once
-	worldcoinSettings  comfig.Once
-	issuer             comfig.Once
+	unstoppableDomains      comfig.Once
+	gitcoinPassportSettings comfig.Once
+	worldcoinSettings       comfig.Once
+	issuer                  comfig.Once
 }
 
 func New(getter kv.Getter) Config {

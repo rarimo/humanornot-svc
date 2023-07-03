@@ -22,7 +22,7 @@ func (c *config) WorldcoinSettings() *WorldcoinSettings {
 			From(kv.MustGetStringMap(c.getter, worldcoinSettingsYamlKey)).
 			Please()
 		if err != nil {
-			panic(errors.Wrap(err, "failed to figure out"))
+			panic(errors.Wrap(err, "failed to figure out worldcoin settings"))
 		}
 
 		return &cfg
