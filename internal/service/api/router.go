@@ -27,6 +27,7 @@ func (s *service) router() chi.Router {
 			r.Route("/public", func(r chi.Router) {
 				r.Post(fmt.Sprintf("/verify/{%s}", requests.IdentityProviderPathParam), handlers.Verify)
 				r.Post("nonce", handlers.GetNonce)
+				r.Get("status/{verification-id}", handlers.GetVerifyStatus)
 			})
 		})
 	})

@@ -4,6 +4,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"gitlab.com/distributed_lab/logan/v3/errors"
+	"gitlab.com/rarimo/identity/kyc-service/resources"
 	"time"
 )
 
@@ -26,10 +27,7 @@ const (
 
 type (
 	// VerificationData is a data that is required by Gitcoin Passport to verify a user
-	VerificationData struct {
-		Signature string `json:"signature"`
-		Address   string `json:"address"`
-	}
+	VerificationData resources.GitcoinPassportData
 
 	// SubmitPassportResponse is a data that is returned by Gitcoin Passport with status of request
 	SubmitPassportResponse struct {

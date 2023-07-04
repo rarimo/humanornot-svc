@@ -152,7 +152,7 @@ func (g *GitcoinPassport) processNewCheckScoreRequest(user data.User) error {
 		}
 
 		if err := g.validateScore(score); err != nil {
-			user.Status = data.UserStatusRejected
+			user.Status = data.UserStatusUnverified
 		}
 
 		providerDataRaw, err := json.Marshal(ProviderData{
@@ -167,7 +167,7 @@ func (g *GitcoinPassport) processNewCheckScoreRequest(user data.User) error {
 		return errors.Wrap(g.masterQ.UsersQ().Update(&user), "failed to update user")
 	}
 
-	user.Status = data.UserStatusRejected
+	user.Status = data.UserStatusUnverified
 	return errors.Wrap(g.masterQ.UsersQ().Update(&user), "failed to update user")
 }
 

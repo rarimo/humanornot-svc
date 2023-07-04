@@ -1,0 +1,19 @@
+allOf:
+  - $ref: '#/components/schemas/VerifyStatusKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - status
+        properties:
+          status:
+            type: string
+            enum:
+              - verified
+              - unverified
+              - pending
+            example: verified
+            description: Verification status of the account.
