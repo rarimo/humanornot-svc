@@ -3,12 +3,15 @@ package gcpsp
 import (
 	"github.com/ethereum/go-ethereum/common"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"gitlab.com/distributed_lab/logan/v3/errors"
 	"time"
 )
 
 const (
+	defaultBaseURL         = "https://api.scorer.gitcoin.co/registry"
 	submitPassportEndpoint = "/submit-passport"
 	scoreEndpoint          = "/score"
+	defaultRetryCount      = 3
 )
 
 const (
@@ -45,6 +48,16 @@ type (
 		Address string `json:"address"`
 		Score   string `json:"score"`
 	}
+)
+
+var (
+	ErrUnexpectedStatus = errors.New("unexpected status")
+
+	ErrUnexpectedStatusCode = errors.New("received unexpected status code")
+	ErrInvalidAccessToken   = errors.New("invalid access token")
+
+	ErrInvalidUsersSignature = errors.New("invalid signature")
+	ErrScoreIsTooLow         = errors.New("score is too low")
 )
 
 // Validate is a method that validates VerificationData

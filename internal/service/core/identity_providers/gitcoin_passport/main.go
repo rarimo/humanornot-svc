@@ -20,18 +20,28 @@ import (
 type GitcoinPassport struct {
 	cli          *req.Client
 	logger       *logan.Entry
-	settings     config.GitcoinPassportSettings
+	settings     *config.GitcoinPassportSettings
 	masterQ      data.MasterQ
 	scoreReqChan chan data.User
 }
 
 // NewIdentityProvider creates a new GitcoinPassport instance
 func NewIdentityProvider(
-	settings config.GitcoinPassportSettings,
-	masterQ data.MasterQ,
 	logger *logan.Entry,
+	settings *config.GitcoinPassportSettings,
+	masterQ data.MasterQ,
 	ctx context.Context,
 ) *GitcoinPassport {
+	if settings.BaseURL == "" {
+		logger.Debugf("Base URL for Gitcoin Passport not found, the default %s is set", defaultBaseURL)
+		settings.BaseURL = defaultBaseURL
+	}
+
+	if settings.GetScoreMaxRetries == 0 {
+		logger.Debugf("GetScoreMaxRetries for Gitcoin Passport not found, the default %v is set", defaultRetryCount)
+		settings.GetScoreMaxRetries = defaultRetryCount
+	}
+
 	instance := &GitcoinPassport{
 		cli:          req.C().SetBaseURL(settings.BaseURL).SetLogger(logger),
 		settings:     settings,
@@ -72,7 +82,7 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyProviderDataRaw []byte) 
 		}
 
 		if !valid {
-			return errors.New("signature is invalid")
+			return ErrInvalidUsersSignature
 		}
 	}
 
@@ -100,7 +110,7 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyProviderDataRaw []byte) 
 	case statusProcessing:
 		g.scoreReqChan <- *user
 	default:
-		return errors.New(fmt.Sprintf("unknown response status: %s", response.Status))
+		return errors.Wrapf(ErrUnexpectedStatus, response.Status)
 	}
 
 	return nil
@@ -126,6 +136,10 @@ func (g *GitcoinPassport) watchNewCheckScoreRequest(ctx context.Context) {
 func (g *GitcoinPassport) processNewCheckScoreRequest(user data.User) error {
 	userAddr := user.EthAddress.String()
 
+	// wait for some time before checking user's score.
+	// this time sleep also waits when the user will be processed and saved in db by the main goroutine
+	<-time.After(retryInterval)
+
 	for i := 0; i < g.settings.GetScoreMaxRetries; i++ {
 		score, processed, err := g.getUserScore(userAddr)
 		if err != nil {
@@ -150,11 +164,11 @@ func (g *GitcoinPassport) processNewCheckScoreRequest(user data.User) error {
 		}
 
 		user.ProviderData = providerDataRaw
-
-		return g.masterQ.UsersQ().Update(&user)
+		return errors.Wrap(g.masterQ.UsersQ().Update(&user), "failed to update user")
 	}
 
-	return errors.New("max retries exceeded")
+	user.Status = data.UserStatusRejected
+	return errors.Wrap(g.masterQ.UsersQ().Update(&user), "failed to update user")
 }
 
 // getUserScore returns user's score and whether it's processed or not from Gitcoin Passport
@@ -172,10 +186,10 @@ func (g *GitcoinPassport) getUserScore(address string) (score string, processed 
 
 	if response.StatusCode >= 299 {
 		if response.StatusCode == http.StatusUnauthorized {
-			return score, processed, err
+			return score, processed, ErrInvalidAccessToken
 		}
 
-		return score, processed, err
+		return score, processed, errors.Wrapf(ErrUnexpectedStatusCode, response.String())
 	}
 
 	switch resp.Status {
@@ -184,7 +198,7 @@ func (g *GitcoinPassport) getUserScore(address string) (score string, processed 
 	case statusProcessing:
 		return score, processed, nil
 	default:
-		return score, processed, errors.New("unknown response status")
+		return score, processed, errors.Wrapf(ErrUnexpectedStatus, resp.Status)
 	}
 }
 
@@ -211,10 +225,10 @@ func (g *GitcoinPassport) submitUserPassport(address string) (*SubmitPassportRes
 
 	if response.StatusCode >= 299 {
 		if response.StatusCode == http.StatusUnauthorized {
-			return nil, err
+			return nil, ErrInvalidAccessToken
 		}
 
-		return nil, err
+		return nil, errors.Wrapf(ErrUnexpectedStatusCode, response.String())
 	}
 
 	return &resp, nil
@@ -228,7 +242,7 @@ func (g *GitcoinPassport) validateScore(score string) error {
 	}
 
 	if value < g.settings.GateScore {
-		return errors.New("score is too low")
+		return ErrScoreIsTooLow
 	}
 
 	return nil

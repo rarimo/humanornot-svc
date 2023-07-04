@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+	gcpsp "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/worldcoin"
 	"time"
 
@@ -26,7 +28,7 @@ type kycService struct {
 	identityProviders map[providers.IdentityProviderName]providers.IdentityProvider
 }
 
-func NewKYCService(cfg config.Config) KYCService {
+func NewKYCService(cfg config.Config, ctx context.Context) KYCService {
 	return &kycService{
 		db:     pg.NewMasterQ(cfg.DB()),
 		issuer: issuer.New(cfg.Log(), cfg.Issuer()),
@@ -38,6 +40,12 @@ func NewKYCService(cfg config.Config) KYCService {
 			providers.WorldCoinIdentityProvider: worldcoin.NewIdentityProvider(
 				cfg.Log().WithField("provider", providers.WorldCoinIdentityProvider),
 				cfg.WorldcoinSettings(),
+			),
+			providers.GitCoinPassportIdentityProvider: gcpsp.NewIdentityProvider(
+				cfg.Log().WithField("provider", providers.GitCoinPassportIdentityProvider),
+				cfg.GitcoinPassportSettings(),
+				pg.NewMasterQ(cfg.DB()),
+				ctx,
 			),
 		},
 	}

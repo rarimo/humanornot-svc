@@ -28,7 +28,7 @@ func GetNonce(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := db.NonceQ().FilterByAddress(request.Attributes.Address).Delete(); err != nil {
+	if err = db.NonceQ().FilterByAddress(request.Attributes.Address).Delete(); err != nil {
 		logger.WithError(err).Error("failed to delete user nonce")
 		ape.RenderErr(w, problems.InternalError())
 		return

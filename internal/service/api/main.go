@@ -23,18 +23,18 @@ type service struct {
 	masterQ    data.MasterQ
 }
 
-func newService(cfg config.Config) *service {
+func newService(cfg config.Config, ctx context.Context) *service {
 	return &service{
 		log:        cfg.Log(),
 		copus:      cfg.Copus(),
 		listener:   cfg.Listener(),
-		kycService: core.NewKYCService(cfg),
+		kycService: core.NewKYCService(cfg, ctx),
 		masterQ:    pg.NewMasterQ(cfg.DB()),
 	}
 }
 
 func Run(ctx context.Context, cfg config.Config) {
-	svc := newService(cfg)
+	svc := newService(cfg, ctx)
 
 	if err := svc.copus.RegisterChi(svc.router()); err != nil {
 		panic(errors.Wrap(err, "cop failed"))
