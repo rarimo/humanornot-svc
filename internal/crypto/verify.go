@@ -25,6 +25,8 @@ func VerifyEIP191Signature(signature string, rawMessage string, address common.A
 		return false, errors.Wrap(err, "failed to decode signature")
 	}
 
+	decodedSignature[64] -= 27 // Transform yellow paper V from 27/28 to 0/1
+
 	ecdsaPublicKey, err := crypto.SigToPub(
 		crypto.Keccak256(EIP191Prefix([]byte(rawMessage))),
 		decodedSignature,

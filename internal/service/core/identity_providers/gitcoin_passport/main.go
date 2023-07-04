@@ -84,6 +84,10 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyProviderDataRaw []byte) 
 		if !valid {
 			return ErrInvalidUsersSignature
 		}
+
+		if err = g.masterQ.NonceQ().FilterByAddress(verifyData.Address).Delete(); err != nil {
+			return errors.Wrap(err, "failed to delete nonce")
+		}
 	}
 
 	response, err := g.submitUserPassport(verifyData.Address)
