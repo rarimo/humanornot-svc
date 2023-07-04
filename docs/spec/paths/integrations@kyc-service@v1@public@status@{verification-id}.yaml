@@ -1,0 +1,27 @@
+get:
+  tags:
+    - Verification status
+  summary: It returns the verification status of the user.
+  operationId: checkVerifyStatus
+  parameters:
+    - $ref: '#/components/parameters/verificationId'
+  responses:
+    '200':
+      description: >-
+        Success
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                $ref: '#/components/schemas/VerifyStatus'
+    '400':
+      description: Bad request
+    '404':
+      description: User not found
+    '500':
+      description: Internal error
+

@@ -1,8 +1,10 @@
 package core
 
 import (
+	"context"
 	"time"
 
+	gcpsp "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/worldcoin"
 
 	"github.com/google/uuid"
@@ -27,7 +29,7 @@ type kycService struct {
 	identityProviders map[providers.IdentityProviderName]providers.IdentityProvider
 }
 
-func NewKYCService(cfg config.Config) KYCService {
+func NewKYCService(cfg config.Config, ctx context.Context) KYCService {
 	return &kycService{
 		db:     pg.NewMasterQ(cfg.DB()),
 		issuer: issuer.New(cfg.Log(), cfg.Issuer()),
@@ -40,6 +42,12 @@ func NewKYCService(cfg config.Config) KYCService {
 				cfg.Log().WithField("provider", providers.WorldCoinIdentityProvider),
 				cfg.WorldcoinSettings(),
 			),
+			providers.GitCoinPassportIdentityProvider: gcpsp.NewIdentityProvider(
+				cfg.Log().WithField("provider", providers.GitCoinPassportIdentityProvider),
+				cfg.GitcoinPassportSettings(),
+				pg.NewMasterQ(cfg.DB()),
+				ctx,
+			),
 		},
 	}
 }
@@ -50,7 +58,9 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 		return nil, errors.Wrap(err, "failed to get user from db with the same identityID")
 	}
 	if prevUser != nil {
-		return nil, ErrUserAlreadyVerifiedByIdentityID
+		if prevUser.Status != data.UserStatusUnverified {
+			return nil, ErrUserAlreadyVerifiedByIdentityID
+		}
 	}
 
 	newUser := data.User{
@@ -76,8 +86,7 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 		}
 	}
 
-	err = k.db.UsersQ().Insert(&newUser)
-	if err != nil {
+	if err = k.db.UsersQ().Upsert(&newUser); err != nil {
 		return nil, errors.Wrap(err, "failed to insert new user into db")
 	}
 

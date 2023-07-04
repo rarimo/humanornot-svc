@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	gcpsp "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/worldcoin"
 	"net/http"
 
@@ -30,10 +31,20 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		Log(r).WithField("reason", err).Debug("Conflict")
 		ape.RenderErr(w, problems.Conflict())
 		return
+	case errors.Is(err, gcpsp.ErrInvalidVerificationData):
+		Log(r).WithField("reason", err).
+			WithField("identity-provider", req.IdentityProviderName).
+			WithField("provider-data", string(req.ProviderData)).
+			Debug("Bad request")
+		ape.RenderErr(w, problems.BadRequest(err)...)
+		return
 	case errors.Is(err, worldcoin.ErrInvalidIdToken),
 		errors.Is(err, worldcoin.ErrNotLikelyHuman),
 		errors.Is(err, unstopdom.ErrInvalidUsersSignature),
-		errors.Is(err, unstopdom.ErrInvalidAccessToken):
+		errors.Is(err, unstopdom.ErrInvalidAccessToken),
+		errors.Is(err, gcpsp.ErrInvalidAccessToken),
+		errors.Is(err, gcpsp.ErrInvalidUsersSignature),
+		errors.Is(err, gcpsp.ErrScoreIsTooLow):
 		Log(r).WithField("reason", err).
 			WithField("identity-provider", req.IdentityProviderName).
 			WithField("provider-data", string(req.ProviderData)).

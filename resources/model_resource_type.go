@@ -12,4 +12,5 @@ const (
 	NONCE_REQUEST   ResourceType = "nonce_request"
 	VERIFICATION_ID ResourceType = "verification_id"
 	VERIFY          ResourceType = "verify"
+	VERIFY_STATUS   ResourceType = "verify_status"
 )

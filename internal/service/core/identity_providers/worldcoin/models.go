@@ -3,6 +3,7 @@ package worldcoin
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"gitlab.com/rarimo/identity/kyc-service/resources"
 )
 
 const (
@@ -14,9 +15,7 @@ const (
 
 type (
 	// VerificationData is data that is required by Worldcoin to verify a user
-	VerificationData struct {
-		IdToken string `json:"id_token"`
-	}
+	VerificationData resources.WorldcoinData
 
 	// UserInfo is data that is returned by Worldcoin by /userinfo endpoint.
 	UserInfo struct {

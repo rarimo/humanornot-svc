@@ -14,7 +14,7 @@ import (
 type UsersQ interface {
 	Get() (*User, error)
 	Select() ([]User, error)
-	Insert(user *User) error
+	Upsert(user *User) error
 	Update(user *User) error
 
 	Sort(sort pgdb.SortedOffsetPageParams) UsersQ
@@ -44,7 +44,7 @@ const (
 	UserStatusInitialized UserStatus = "initialized"
 	UserStatusPending     UserStatus = "pending"
 	UserStatusVerified    UserStatus = "verified"
-	UserStatusRejected    UserStatus = "rejected"
+	UserStatusUnverified  UserStatus = "unverified"
 )
 
 type IdentityID struct {

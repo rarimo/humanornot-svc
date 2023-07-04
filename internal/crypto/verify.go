@@ -21,10 +21,12 @@ var (
 // VerifyEIP191Signature verifies the signature of a message using the EIP-191 standard.
 // Returns true if the signature is valid, false otherwise.
 func VerifyEIP191Signature(signature string, rawMessage string, address common.Address) (bool, error) {
-	decodedSignature, err := decodeSignature(signature)
+	decodedSignature, err := hexutil.Decode(signature)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to decode signature")
 	}
+
+	decodedSignature[64] -= 27 // Transform yellow paper V from 27/28 to 0/1
 
 	ecdsaPublicKey, err := crypto.SigToPub(
 		crypto.Keccak256(EIP191Prefix([]byte(rawMessage))),
@@ -35,18 +37,6 @@ func VerifyEIP191Signature(signature string, rawMessage string, address common.A
 	}
 
 	return address == crypto.PubkeyToAddress(*ecdsaPublicKey), nil
-}
-
-// DecodeSignature decodes a signature from a hex string.
-func decodeSignature(signature string) ([]byte, error) {
-	signatureBytes, err := hexutil.Decode(signature)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to decode hex string to bytes")
-	}
-
-	signatureBytes[64] -= 27
-
-	return signatureBytes, nil
 }
 
 // EIP191Prefix returns the EIP-191 prefix for a message.

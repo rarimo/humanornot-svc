@@ -1,0 +1,21 @@
+type: object
+description: Gitcoin passport provider's data
+required:
+  - address
+  - signature
+properties:
+  address:
+    type: string
+    format: string
+    description: >-
+      The user's address
+    example: >-
+      0x1234567890123456789012345678901234567890
+  signature:
+    type: string
+    format: string
+    description: >-
+      The signature of the requested nonce to validate if the user owns the address
+    example: >-
+      0x1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
