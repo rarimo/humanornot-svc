@@ -57,7 +57,9 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 		return nil, errors.Wrap(err, "failed to get user from db with the same identityID")
 	}
 	if prevUser != nil {
-		return nil, ErrUserAlreadyVerifiedByIdentityID
+		if prevUser.Status != data.UserStatusUnverified {
+			return nil, ErrUserAlreadyVerifiedByIdentityID
+		}
 	}
 
 	newUser := data.User{
@@ -69,16 +71,6 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 
 	if err = k.identityProviders[req.IdentityProviderName].Verify(&newUser, req.ProviderData); err != nil {
 		return nil, errors.Wrap(err, "failed to verify user")
-	}
-
-	if newUser.EthAddress != nil {
-		prevUser, err = k.db.UsersQ().WhereEthAddress(*newUser.EthAddress).Get()
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get user from db with the same ethAddress")
-		}
-		if prevUser != nil {
-			return nil, ErrUserAlreadyVerifiedByEthAddress
-		}
 	}
 
 	if newUser.Status == data.UserStatusVerified {
@@ -93,8 +85,7 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 		}
 	}
 
-	err = k.db.UsersQ().Insert(&newUser)
-	if err != nil {
+	if err = k.db.UsersQ().Upsert(&newUser); err != nil {
 		return nil, errors.Wrap(err, "failed to insert new user into db")
 	}
 

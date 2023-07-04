@@ -56,13 +56,18 @@ func (q *usersQ) Get() (*data.User, error) {
 	return &result, nil
 }
 
-func (q *usersQ) Insert(user *data.User) error {
+func (q *usersQ) Upsert(user *data.User) error {
 	clauses := structs.Map(user)
 	clauses[identityIDColumnName] = user.IdentityID
 
 	err := q.db.Exec(
 		sq.Insert(usersTableName).
-			SetMap(clauses),
+			SetMap(clauses).
+			Suffix("ON CONFLICT (identity_id) " +
+				"DO UPDATE SET " +
+				"status = EXCLUDED.status, " +
+				"eth_address = EXCLUDED.eth_address, " +
+				"provider_data = EXCLUDED.provider_data"),
 	)
 	if err != nil {
 		return errors.Wrap(err, "failed to insert rows")

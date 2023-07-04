@@ -5,7 +5,7 @@ CREATE TABLE users(
     status        VARCHAR(256)                NOT NULL,
     created_at    TIMESTAMP    WITH TIME ZONE NOT NULL,
     identity_id   BYTEA        UNIQUE         NOT NULL,
-    eth_address   BYTEA        UNIQUE,
+    eth_address   BYTEA,
     provider_data BYTEA
 );
 

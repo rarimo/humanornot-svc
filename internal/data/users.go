@@ -14,7 +14,7 @@ import (
 type UsersQ interface {
 	Get() (*User, error)
 	Select() ([]User, error)
-	Insert(user *User) error
+	Upsert(user *User) error
 	Update(user *User) error
 
 	Sort(sort pgdb.SortedOffsetPageParams) UsersQ
