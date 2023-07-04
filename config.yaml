@@ -21,6 +21,7 @@ civic:
   xdc_rpc_url: "https://..."
   polygon_rpc_url: "https://..."
   arbitrum_rpc_url: "https://..."
+  skip_sig_check: false
 
 unstoppable_domains:
   auth_base_url: "https://auth.unstoppabledomains.com"
@@ -28,13 +29,13 @@ unstoppable_domains:
 worldcoin:
   base_url: "https://id.worldcoin.org"
 
-gitcoin:
+gitcoin_passport:
   base_url: "https://api.scorer.gitcoin.co/registry"
-  api_key:
-  scorer_id:
+  api_key: "..."
+  scorer_id: 12
   gate_score: 15
   get_score_max_retries: 3
-  skip_sig_check: true
+  skip_sig_check: false
 
 cop:
   disabled: true

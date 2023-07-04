@@ -1,9 +1,20 @@
 type: object
-description: Gitcoin passport provider's data
+description: Civic provider's data
 required:
+  - chain_name
   - address
   - signature
 properties:
+  chain_name:
+    type: string
+    format: string
+    description: One of the available chain's name
+    example: polygon
+    enum:
+      - polygon
+      - ethereum
+      - xdc
+      - arbitrum
   address:
     type: string
     format: string

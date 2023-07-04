@@ -2,7 +2,9 @@ package worldcoin
 
 import (
 	"fmt"
+
 	"github.com/pkg/errors"
+
 	"gitlab.com/rarimo/identity/kyc-service/resources"
 )
 
@@ -34,7 +36,6 @@ type (
 )
 
 var (
-	ErrInvalidIdToken = errors.New("invalid id token")
 	ErrNotLikelyHuman = errors.New("not likely human")
 )
 

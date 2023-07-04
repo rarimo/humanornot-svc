@@ -12,8 +12,10 @@ allOf:
         properties:
           message:
             type: string
-            example: "Authentication Message. 4efad2f9ec175291a8632582d845641b"
-            description: Message to be signed with MetaMask's `personal_sign`. Contains some user-friendly text and a random nonce.
+            example: Authentication Message. 4efad2f9ec175291a8632582d845641b
+            description: >-
+              Message to be signed with MetaMask's `personal_sign`. Contains
+              some user-friendly text and a random nonce.
           nonce:
             type: string
             example: 4efad2f9ec175291a8632582d845641b

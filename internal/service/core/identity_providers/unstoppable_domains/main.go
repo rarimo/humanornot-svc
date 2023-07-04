@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
+	providers "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/imroc/req/v3"
@@ -20,7 +21,7 @@ type UnstoppableDomains struct {
 	*req.Client
 }
 
-func New(log *logan.Entry, config *config.UnstoppableDomains) *UnstoppableDomains {
+func NewIdentityProvider(log *logan.Entry, config *config.UnstoppableDomains) *UnstoppableDomains {
 	authBaseURL := config.AuthBaseURL
 	if authBaseURL == "" {
 		log.Debugf("Base URL for Unstoppable domains not found, the default %s is set", defaultAuthBaseURL)
@@ -50,7 +51,7 @@ func (u *UnstoppableDomains) Verify(user *data.User, verifyDataRaw []byte) error
 		return errors.Wrap(err, "failed to verify user's signature")
 	}
 	if !isValidSignature {
-		return ErrInvalidUsersSignature
+		return providers.ErrInvalidUsersSignature
 	}
 
 	address := common.HexToAddress(userInfo.WalletAddress)
@@ -82,7 +83,7 @@ func (u *UnstoppableDomains) retrieveUserInfo(accessToken string) (*UserInfo, er
 
 	if response.StatusCode >= 299 {
 		if response.StatusCode == http.StatusUnauthorized {
-			return nil, ErrInvalidAccessToken
+			return nil, providers.ErrInvalidAccessToken
 		}
 
 		return nil, errors.Wrapf(ErrUnexpectedStatusCode, response.String())

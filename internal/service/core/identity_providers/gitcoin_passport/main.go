@@ -4,16 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/imroc/req/v3"
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
+
 	"gitlab.com/rarimo/identity/kyc-service/internal/config"
 	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
 	"gitlab.com/rarimo/identity/kyc-service/internal/data"
-	"net/http"
-	"strconv"
-	"time"
+	providers "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers"
 )
 
 // GitcoinPassport is an identity provider
@@ -61,7 +64,7 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyProviderDataRaw []byte) 
 	}
 
 	if err := verifyData.Validate(); err != nil {
-		return ErrInvalidVerificationData
+		return providers.ErrInvalidVerificationData
 	}
 
 	userAddr := common.HexToAddress(verifyData.Address)
@@ -82,7 +85,7 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyProviderDataRaw []byte) 
 		}
 
 		if !valid {
-			return ErrInvalidUsersSignature
+			return providers.ErrInvalidUsersSignature
 		}
 
 		if err = g.masterQ.NonceQ().FilterByAddress(verifyData.Address).Delete(); err != nil {
@@ -190,7 +193,7 @@ func (g *GitcoinPassport) getUserScore(address string) (score string, processed 
 
 	if response.StatusCode >= 299 {
 		if response.StatusCode == http.StatusUnauthorized {
-			return score, processed, ErrInvalidAccessToken
+			return score, processed, providers.ErrInvalidAccessToken
 		}
 
 		return score, processed, errors.Wrapf(ErrUnexpectedStatusCode, response.String())
@@ -229,7 +232,7 @@ func (g *GitcoinPassport) submitUserPassport(address string) (*SubmitPassportRes
 
 	if response.StatusCode >= 299 {
 		if response.StatusCode == http.StatusUnauthorized {
-			return nil, ErrInvalidAccessToken
+			return nil, providers.ErrInvalidAccessToken
 		}
 
 		return nil, errors.Wrapf(ErrUnexpectedStatusCode, response.String())

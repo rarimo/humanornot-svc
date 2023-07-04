@@ -6,10 +6,6 @@ var (
 	// Internal errors
 	ErrInvalidWalletAddress = errors.New("invalid wallet address")
 	ErrUnexpectedStatusCode = errors.New("received unexpected status code")
-
-	// Unathorized errors
-	ErrInvalidUsersSignature = errors.New("invalid signature")
-	ErrInvalidAccessToken    = errors.New("invalid access token")
 )
 
 const (

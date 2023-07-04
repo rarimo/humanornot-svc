@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/civic"
 	gcpsp "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/worldcoin"
 
@@ -29,12 +30,21 @@ type kycService struct {
 	identityProviders map[providers.IdentityProviderName]providers.IdentityProvider
 }
 
-func NewKYCService(cfg config.Config, ctx context.Context) KYCService {
+func NewKYCService(cfg config.Config, ctx context.Context) (KYCService, error) {
+	civicIdentityProvider, err := civic.NewIdentityProvider(
+		cfg.Log().WithField("provider", providers.CivicIdentityProvider),
+		pg.NewMasterQ(cfg.DB()),
+		cfg.Civic(),
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create Civic identity provider")
+	}
+
 	return &kycService{
 		db:     pg.NewMasterQ(cfg.DB()),
 		issuer: issuer.New(cfg.Log(), cfg.Issuer()),
 		identityProviders: map[providers.IdentityProviderName]providers.IdentityProvider{
-			providers.UnstoppableDomainsIdentityProvider: unstopdom.New(
+			providers.UnstoppableDomainsIdentityProvider: unstopdom.NewIdentityProvider(
 				cfg.Log().WithField("provider", providers.UnstoppableDomainsIdentityProvider),
 				cfg.UnstoppableDomains(),
 			),
@@ -48,8 +58,9 @@ func NewKYCService(cfg config.Config, ctx context.Context) KYCService {
 				pg.NewMasterQ(cfg.DB()),
 				ctx,
 			),
+			providers.CivicIdentityProvider: civicIdentityProvider,
 		},
-	}
+	}, nil
 }
 
 func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, error) {

@@ -7,7 +7,7 @@ properties:
     type: string
     format: string
     description: >-
-      The API JWT provides the ability to retrieve the user's metadata.
-      You can receive it after successful /authorize flow.
+      The API JWT provides the ability to retrieve the user's metadata. You can
+      receive it after successful /authorize flow.
     example: >-
       eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Imp3a18wMGI2YmViODU1NTY1N2FmNTMwMzc3YzQyMmQ5NTY0YiJ9.eyJpc3MiOiJodHRwczovL2lkLndvcmxkY29pbi5vcmciLCJzdWIiOiIweDBhZTcyMDUwM2VjZmEyZTNiODZmMDI1OGExMzdhODI5NmZiOWUzODk1NmUwZDFkMThkMTg1MTk4ZmQ3NTU0MjUiLCJqdGkiOiIyNmM5ODIxMi1hZTJlLTRjYWQtYjcxNC1mMTM2NGQ0YjdkOWYiLCJpYXQiOjE2ODgwMzIzODI5OTYsImV4cCI6MTY4ODAzNTk4Mjk5NiwiYXVkIjoiYXBwX3N0YWdpbmdfOWZiODI5MmMwYzA5MDI0ZmZhMDVjMDcwZDg2ZWY3ZDMiLCJzY29wZSI6IiIsImh0dHBzOi8vaWQud29ybGRjb2luLm9yZy9iZXRhIjp7Imxpa2VseV9odW1hbiI6InN0cm9uZyIsImNyZWRlbnRpYWxfdHlwZSI6Im9yYiJ9LCJub25jZSI6InotZGtFbW95X3VqZms3Qjh1VGlRcGgifQ.T7qEvi7saW-HF7oEIgVRS8xqEo1KeFQta4O-EKf9iO9Ko8GrgkTtf4CeM3JuGDuybRT0oTiCS1STucaY63vl1JPWHuVKpUyaA19rwoo0QqSYaa3olF90JEMMert1zbs2kjdmO5EhPqRmHn8CLohjJ0uWYEd6t9LcSVDSaqPouaTD314-iMNwiDAocBVcVZ2tt0NYB2M3HCOjfqp3nvisuNgqqyHBQ0wWe-UfYpMZlJ72HuuZOsKv01Jo_lSBnJplolNZ36mnKm8jRkJlb7ia4z0xand-REbu9RBfDgsba1uJexRZBiEI-adhbLYwoDnIe7kRIEI0T-S4fepq_KnhVA

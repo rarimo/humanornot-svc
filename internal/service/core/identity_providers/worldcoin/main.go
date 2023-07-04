@@ -2,12 +2,15 @@ package worldcoin
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/imroc/req/v3"
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
+
 	"gitlab.com/rarimo/identity/kyc-service/internal/config"
 	"gitlab.com/rarimo/identity/kyc-service/internal/data"
-	"net/http"
+	providers "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers"
 )
 
 // Worldcoin is a struct that implements the identityproviders.IdentityProvider interface
@@ -68,7 +71,7 @@ func (w *Worldcoin) retrieveUserInfo(accessToken string) (*UserInfo, error) {
 
 	if response.StatusCode >= 299 {
 		if response.StatusCode == http.StatusUnauthorized {
-			return nil, ErrInvalidIdToken
+			return nil, providers.ErrInvalidAccessToken
 		}
 
 		return nil, unexpectedStatusCode(response.StatusCode)

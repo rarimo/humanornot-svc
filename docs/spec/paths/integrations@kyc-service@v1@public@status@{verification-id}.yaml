@@ -7,8 +7,7 @@ get:
     - $ref: '#/components/parameters/verificationId'
   responses:
     '200':
-      description: >-
-        Success
+      description: Success
       content:
         application/json:
           schema:
@@ -24,4 +23,3 @@ get:
       description: User not found
     '500':
       description: Internal error
-

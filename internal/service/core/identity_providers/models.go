@@ -1,5 +1,17 @@
 package identityproviders
 
+import "github.com/pkg/errors"
+
+var (
+	// Unauthorized errors
+	ErrNonceNotFound         = errors.New("nonce for provided address not found")
+	ErrInvalidUsersSignature = errors.New("invalid signature")
+	ErrInvalidAccessToken    = errors.New("invalid access token")
+
+	// Bad request errors
+	ErrInvalidVerificationData = errors.New("verification data is invalid")
+)
+
 type IdentityProviderName string
 
 func (ipn IdentityProviderName) String() string {

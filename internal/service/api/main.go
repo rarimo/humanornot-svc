@@ -2,9 +2,10 @@ package api
 
 import (
 	"context"
+	"net"
+
 	"gitlab.com/rarimo/identity/kyc-service/internal/data"
 	"gitlab.com/rarimo/identity/kyc-service/internal/data/pg"
-	"net"
 
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/kit/copus/types"
@@ -24,11 +25,16 @@ type service struct {
 }
 
 func newService(cfg config.Config, ctx context.Context) *service {
+	kycService, err := core.NewKYCService(cfg, ctx)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to create new KYC service"))
+	}
+
 	return &service{
 		log:        cfg.Log(),
 		copus:      cfg.Copus(),
 		listener:   cfg.Listener(),
-		kycService: core.NewKYCService(cfg, ctx),
+		kycService: kycService,
 		masterQ:    pg.NewMasterQ(cfg.DB()),
 	}
 }

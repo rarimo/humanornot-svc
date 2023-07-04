@@ -17,6 +17,7 @@ type Civic struct {
 	XDCRpc               *ethclient.Client
 	PolygonRpc           *ethclient.Client
 	ArbitrumRpc          *ethclient.Client
+	SkipSigCheck         bool
 }
 
 type civic struct {
@@ -24,11 +25,12 @@ type civic struct {
 	// aka gatekeeper_network_slot_id / network (uint256) on chain
 	GatekeeperNetworkId *big.Int `fig:"gatekeeper_network_id"`
 	// GatewayTokenContract 0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E
-	GatewayTokenContract string `fig:"gateway_token_contract"`
-	EthRpcURL            string `fig:"eth_rpc_url"`
-	XDCRpcURL            string `fig:"xdc_rpc_url"`
-	PolygonRpcURL        string `fig:"polygon_rpc_url"`
-	ArbitrumRpcURL       string `fig:"arbitrum_rpc_url"`
+	GatewayTokenContract string `fig:"gateway_token_contract,required"`
+	EthRpcURL            string `fig:"eth_rpc_url,required"`
+	XDCRpcURL            string `fig:"xdc_rpc_url,required"`
+	PolygonRpcURL        string `fig:"polygon_rpc_url,required"`
+	ArbitrumRpcURL       string `fig:"arbitrum_rpc_url,required"`
+	SkipSigCheck         bool   `fig:"skip_sig_check,required"`
 }
 
 func (c *config) Civic() *Civic {
@@ -78,5 +80,6 @@ func parseCivicConfig(cfg *civic) *Civic {
 		XDCRpc:               xdcClient,
 		PolygonRpc:           polygonClient,
 		ArbitrumRpc:          arbitrumClient,
+		SkipSigCheck:         cfg.SkipSigCheck,
 	}
 }

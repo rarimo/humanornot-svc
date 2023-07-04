@@ -1,19 +1,21 @@
 package handlers
 
 import (
-	gcpsp "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
-	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/worldcoin"
 	"net/http"
 
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 
+	providers "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers"
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/civic"
+	gcpsp "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/worldcoin"
+
 	"gitlab.com/rarimo/identity/kyc-service/internal/data"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/api/requests"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/api/responses"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/core"
-	unstopdom "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/unstoppable_domains"
 )
 
 func Verify(w http.ResponseWriter, r *http.Request) {
@@ -31,20 +33,14 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		Log(r).WithField("reason", err).Debug("Conflict")
 		ape.RenderErr(w, problems.Conflict())
 		return
-	case errors.Is(err, gcpsp.ErrInvalidVerificationData):
+	case errors.Is(err, providers.ErrInvalidVerificationData):
 		Log(r).WithField("reason", err).
 			WithField("identity-provider", req.IdentityProviderName).
 			WithField("provider-data", string(req.ProviderData)).
 			Debug("Bad request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
-	case errors.Is(err, worldcoin.ErrInvalidIdToken),
-		errors.Is(err, worldcoin.ErrNotLikelyHuman),
-		errors.Is(err, unstopdom.ErrInvalidUsersSignature),
-		errors.Is(err, unstopdom.ErrInvalidAccessToken),
-		errors.Is(err, gcpsp.ErrInvalidAccessToken),
-		errors.Is(err, gcpsp.ErrInvalidUsersSignature),
-		errors.Is(err, gcpsp.ErrScoreIsTooLow):
+	case isUnauthorizedError(err):
 		Log(r).WithField("reason", err).
 			WithField("identity-provider", req.IdentityProviderName).
 			WithField("provider-data", string(req.ProviderData)).
@@ -64,4 +60,13 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ape.Render(w, responses.NewVerify(user.ID))
+}
+
+func isUnauthorizedError(err error) bool {
+	return errors.Is(err, providers.ErrInvalidAccessToken) ||
+		errors.Is(err, providers.ErrInvalidUsersSignature) ||
+		errors.Is(err, providers.ErrNonceNotFound) ||
+		errors.Is(err, worldcoin.ErrNotLikelyHuman) ||
+		errors.Is(err, gcpsp.ErrScoreIsTooLow) ||
+		errors.Is(err, civic.ErrInvalidGatewayToken)
 }
