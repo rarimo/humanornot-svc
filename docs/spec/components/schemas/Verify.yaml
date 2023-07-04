@@ -21,6 +21,7 @@ allOf:
             oneOf:
               - $ref: '#/components/schemas/UnstoppableDomainsData'
               - $ref: '#/components/schemas/WorldcoinData'
+              - $ref: '#/components/schemas/GitcoinPassportData'
             example:
               access_token: >-
                 2EvuL-M58tyOaTIooYv1TKM8_z-8ziVo0DHUHNLeA8k.mfCF1rQdZ9om3JaNuUcHeHkjg67Wvt3nj8as6KYSQhc
