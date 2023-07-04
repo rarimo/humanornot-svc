@@ -31,6 +31,13 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		Log(r).WithField("reason", err).Debug("Conflict")
 		ape.RenderErr(w, problems.Conflict())
 		return
+	case errors.Is(err, gcpsp.ErrInvalidVerificationData):
+		Log(r).WithField("reason", err).
+			WithField("identity-provider", req.IdentityProviderName).
+			WithField("provider-data", string(req.ProviderData)).
+			Debug("Bad request")
+		ape.RenderErr(w, problems.BadRequest(err)...)
+		return
 	case errors.Is(err, worldcoin.ErrInvalidIdToken),
 		errors.Is(err, worldcoin.ErrNotLikelyHuman),
 		errors.Is(err, unstopdom.ErrInvalidUsersSignature),

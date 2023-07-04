@@ -61,7 +61,7 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyProviderDataRaw []byte) 
 	}
 
 	if err := verifyData.Validate(); err != nil {
-		return errors.Wrap(err, "verification data is invalid")
+		return ErrInvalidVerificationData
 	}
 
 	userAddr := common.HexToAddress(verifyData.Address)

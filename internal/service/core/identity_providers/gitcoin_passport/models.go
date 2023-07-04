@@ -54,8 +54,9 @@ var (
 	ErrUnexpectedStatusCode = errors.New("received unexpected status code")
 	ErrInvalidAccessToken   = errors.New("invalid access token")
 
-	ErrInvalidUsersSignature = errors.New("invalid signature")
-	ErrScoreIsTooLow         = errors.New("score is too low")
+	ErrInvalidVerificationData = errors.New("verification data is invalid")
+	ErrInvalidUsersSignature   = errors.New("invalid signature")
+	ErrScoreIsTooLow           = errors.New("score is too low")
 )
 
 // Validate is a method that validates VerificationData
