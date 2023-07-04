@@ -2,11 +2,12 @@ package crypto
 
 import (
 	"fmt"
+	"regexp"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/pkg/errors"
-	"regexp"
 )
 
 const (
@@ -40,15 +41,7 @@ func VerifyEIP191Signature(signature string, rawMessage string, address common.A
 func decodeSignature(signature string) ([]byte, error) {
 	signatureBytes, err := hexutil.Decode(signature)
 	if err != nil {
-		return nil, err
-	}
-
-	if len(signatureBytes) != 65 {
-		return nil, errors.New("bad signature length")
-	}
-
-	if signatureBytes[64] != 27 && signatureBytes[64] != 28 {
-		return nil, errors.New("bad recovery byte")
+		return nil, errors.Wrap(err, "failed to decode hex string to bytes")
 	}
 
 	signatureBytes[64] -= 27

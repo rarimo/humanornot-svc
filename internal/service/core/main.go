@@ -1,8 +1,9 @@
 package core
 
 import (
-	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/worldcoin"
 	"time"
+
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/worldcoin"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -61,16 +62,6 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 
 	if err = k.identityProviders[req.IdentityProviderName].Verify(&newUser, req.ProviderData); err != nil {
 		return nil, errors.Wrap(err, "failed to verify user")
-	}
-
-	if newUser.EthAddress != nil {
-		prevUser, err = k.db.UsersQ().WhereEthAddress(*newUser.EthAddress).Get()
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get user from db with the same ethAddress")
-		}
-		if prevUser != nil {
-			return nil, ErrUserAlreadyVerifiedByEthAddress
-		}
 	}
 
 	if newUser.Status == data.UserStatusVerified {

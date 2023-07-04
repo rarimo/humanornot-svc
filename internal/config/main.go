@@ -14,6 +14,7 @@ type Config interface {
 	types.Copuser
 	comfig.Listenerer
 
+	Civic() *Civic
 	WorldcoinSettings() *WorldcoinSettings
 	UnstoppableDomains() *UnstoppableDomains
 	GitcoinPassportSettings() *GitcoinPassportSettings
@@ -27,6 +28,7 @@ type config struct {
 	comfig.Listenerer
 	getter kv.Getter
 
+	civic                   comfig.Once
 	unstoppableDomains      comfig.Once
 	gitcoinPassportSettings comfig.Once
 	worldcoinSettings       comfig.Once

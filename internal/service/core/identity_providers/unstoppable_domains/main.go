@@ -2,8 +2,9 @@ package unstopdom
 
 import (
 	"encoding/json"
-	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
 	"net/http"
+
+	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/imroc/req/v3"
