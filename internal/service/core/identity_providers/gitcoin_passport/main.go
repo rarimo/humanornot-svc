@@ -70,38 +70,8 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyDataRaw []byte) ([]byte,
 
 	userAddr := common.HexToAddress(verifyData.Address)
 
-	if !g.settings.SkipSigCheck {
-		nonce, err := g.masterQ.NonceQ().
-			WhereEthAddress(userAddr).
-			WhereExpiresAtGt(time.Now()).
-			Get()
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get nonce")
-		}
-		if nonce == nil {
-			return nil, providers.ErrNonceNotFound
-		}
-
-		if nonce == nil {
-			return nil, errors.New("nonce for provided address not found")
-		}
-
-		valid, err := crypto.VerifyEIP191Signature(
-			verifyData.Signature,
-			crypto.NonceToSignMessage(nonce.Nonce),
-			userAddr,
-		)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to verify signature")
-		}
-
-		if !valid {
-			return nil, providers.ErrInvalidUsersSignature
-		}
-
-		if err = g.masterQ.NonceQ().WhereEthAddress(userAddr).Delete(); err != nil {
-			return nil, errors.Wrap(err, "failed to delete nonce")
-		}
+	if err := g.verifySignature(verifyData.Signature, userAddr); err != nil {
+		return nil, errors.Wrap(err, "failed to verify signature")
 	}
 
 	response, err := g.submitUserPassport(verifyData.Address)
@@ -135,6 +105,35 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyDataRaw []byte) ([]byte,
 		userAddr.Bytes(),
 		providers.GitCoinPassportIdentityProvider.Bytes(),
 	), nil
+}
+
+// verifySignature verifies user's signature
+func (g *GitcoinPassport) verifySignature(signature string, userAddr common.Address) error {
+	if g.settings.SkipSigCheck {
+		return nil
+	}
+
+	nonce, err := g.masterQ.NonceQ().
+		WhereEthAddress(userAddr).
+		WhereExpiresAtGt(time.Now()).
+		Get()
+	if err != nil {
+		return errors.Wrap(err, "failed to get nonce")
+	}
+	if nonce == nil {
+		return providers.ErrNonceNotFound
+	}
+
+	valid, err := crypto.VerifyEIP191Signature(
+		signature,
+		crypto.NonceToSignMessage(nonce.Nonce),
+		userAddr,
+	)
+	if err != nil || !valid {
+		return providers.ErrInvalidUsersSignature
+	}
+
+	return errors.Wrap(g.masterQ.NonceQ().WhereEthAddress(userAddr).Delete(), "failed to delete nonce")
 }
 
 // watchNewCheckScoreRequest watches for new requests to check user's score
