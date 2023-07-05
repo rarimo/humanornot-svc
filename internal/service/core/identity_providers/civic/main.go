@@ -3,8 +3,10 @@ package civic
 import (
 	"encoding/json"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	cryptoPkg "github.com/ethereum/go-ethereum/crypto"
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
 
@@ -39,41 +41,47 @@ func NewIdentityProvider(log *logan.Entry, masterQ data.MasterQ, config *config.
 	}, nil
 }
 
-func (c *Civic) Verify(user *data.User, verifyDataRaw []byte) error {
+func (c *Civic) Verify(user *data.User, verifyDataRaw []byte) ([]byte, error) {
 	var verifyData VerificationData
 	if err := json.Unmarshal(verifyDataRaw, &verifyData); err != nil {
-		return errors.Wrap(err, "failed to unmarshal verification data")
+		return nil, errors.Wrap(err, "failed to unmarshal verification data")
 	}
 
 	if err := verifyData.Validate(); err != nil {
-		return errors.Wrap(providers.ErrInvalidVerificationData, err.Error())
+		return nil, errors.Wrap(providers.ErrInvalidVerificationData, err.Error())
 	}
 
 	if err := c.verifySignature(verifyData, verifyData.Address); err != nil {
-		return errors.Wrap(err, "failed to verify signature")
+		return nil, errors.Wrap(err, "failed to verify signature")
 	}
 
 	if err := c.verifyGatewayToken(chainNameFromString[verifyData.ChainName], verifyData.Address); err != nil {
-		return errors.Wrap(err, "failed to verify gateway token")
+		return nil, errors.Wrap(err, "failed to verify gateway token")
 	}
 
 	providerDataRaw, err := json.Marshal(ProviderData{
 		Address: verifyData.Address,
 	})
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal provider data")
+		return nil, errors.Wrap(err, "failed to marshal provider data")
 	}
 
 	user.EthAddress = &verifyData.Address
 	user.Status = data.UserStatusVerified
 	user.ProviderData = providerDataRaw
 
-	return nil
+	return cryptoPkg.Keccak256(
+		verifyData.Address.Bytes(),
+		providers.CivicIdentityProvider.Bytes(),
+	), nil
 }
 
 func (c *Civic) verifySignature(verifyData VerificationData, userAddress common.Address) error {
 	if !c.skipSigCheck {
-		nonce, err := c.masterQ.NonceQ().WhereEthAddress(verifyData.Address).Get()
+		nonce, err := c.masterQ.NonceQ().
+			WhereEthAddress(verifyData.Address).
+			WhereExpiresAtGt(time.Now()).
+			Get()
 		if err != nil {
 			return errors.Wrap(err, "failed to get nonce by address")
 		}
@@ -81,7 +89,11 @@ func (c *Civic) verifySignature(verifyData VerificationData, userAddress common.
 			return providers.ErrNonceNotFound
 		}
 
-		valid, err := crypto.VerifyEIP191Signature(verifyData.Signature, nonce.Message, userAddress)
+		valid, err := crypto.VerifyEIP191Signature(
+			verifyData.Signature,
+			crypto.NonceToSignMessage(nonce.Nonce),
+			userAddress,
+		)
 		if err != nil || !valid {
 			return providers.ErrInvalidUsersSignature
 		}

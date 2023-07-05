@@ -3,11 +3,12 @@ package crypto
 import (
 	"crypto/md5"
 	"fmt"
-	"github.com/pkg/errors"
 	"io"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // NewNonce generates a new nonce.
@@ -27,10 +28,10 @@ func NewNonce() (string, error) {
 	return fmt.Sprintf("%x", hash.Sum(nil)), nil
 }
 
-// NonceToMessage returns a message with nonce to sign.
-func NonceToMessage(nonce string) string {
+// NonceToSignMessage returns a message with nonce to sign.
+func NonceToSignMessage(nonce string) string {
 	return fmt.Sprintf(
-		"User Service Test Authentication\n\n"+
+		"User Authentication\n\n"+
 			"Below is your one-time nonce to make your authentication secure\n%s",
 		nonce,
 	)

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	cryptoPkg "github.com/ethereum/go-ethereum/crypto"
 	"github.com/imroc/req/v3"
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -57,50 +58,60 @@ func NewIdentityProvider(
 	return instance
 }
 
-func (g *GitcoinPassport) Verify(user *data.User, verifyProviderDataRaw []byte) error {
+func (g *GitcoinPassport) Verify(user *data.User, verifyDataRaw []byte) ([]byte, error) {
 	var verifyData VerificationData
-	if err := json.Unmarshal(verifyProviderDataRaw, &verifyData); err != nil {
-		return errors.Wrap(err, "failed to unmarshal verification data")
+	if err := json.Unmarshal(verifyDataRaw, &verifyData); err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal verification data")
 	}
 
 	if err := verifyData.Validate(); err != nil {
-		return providers.ErrInvalidVerificationData
+		return nil, providers.ErrInvalidVerificationData
 	}
 
 	userAddr := common.HexToAddress(verifyData.Address)
 
 	if !g.settings.SkipSigCheck {
-		nonce, err := g.masterQ.NonceQ().WhereEthAddress(userAddr).Get()
+		nonce, err := g.masterQ.NonceQ().
+			WhereEthAddress(userAddr).
+			WhereExpiresAtGt(time.Now()).
+			Get()
 		if err != nil {
-			return errors.Wrap(err, "failed to get nonce")
+			return nil, errors.Wrap(err, "failed to get nonce")
+		}
+		if nonce == nil {
+			return nil, providers.ErrNonceNotFound
 		}
 
 		if nonce == nil {
-			return errors.New("nonce for provided address not found")
+			return nil, errors.New("nonce for provided address not found")
 		}
 
-		valid, err := crypto.VerifyEIP191Signature(verifyData.Signature, nonce.Message, userAddr)
+		valid, err := crypto.VerifyEIP191Signature(
+			verifyData.Signature,
+			crypto.NonceToSignMessage(nonce.Nonce),
+			userAddr,
+		)
 		if err != nil {
-			return errors.Wrap(err, "failed to verify signature")
+			return nil, errors.Wrap(err, "failed to verify signature")
 		}
 
 		if !valid {
-			return providers.ErrInvalidUsersSignature
+			return nil, providers.ErrInvalidUsersSignature
 		}
 
 		if err = g.masterQ.NonceQ().WhereEthAddress(userAddr).Delete(); err != nil {
-			return errors.Wrap(err, "failed to delete nonce")
+			return nil, errors.Wrap(err, "failed to delete nonce")
 		}
 	}
 
 	response, err := g.submitUserPassport(verifyData.Address)
 	if err != nil {
-		return errors.Wrap(err, "failed to submit user's passport")
+		return nil, errors.Wrap(err, "failed to submit user's passport")
 	}
 
 	rawData, err := json.Marshal(response.ProviderData)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal provider data")
+		return nil, errors.Wrap(err, "failed to marshal provider data")
 	}
 
 	user.Status = data.UserStatusPending
@@ -109,7 +120,7 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyProviderDataRaw []byte) 
 	switch response.Status {
 	case statusDone:
 		if err := g.validateScore(response.Score); err != nil {
-			return errors.Wrap(err, "failed to validate score")
+			return nil, errors.Wrap(err, "failed to validate score")
 		}
 
 		user.ProviderData = rawData
@@ -117,10 +128,13 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyProviderDataRaw []byte) 
 	case statusProcessing:
 		g.scoreReqChan <- *user
 	default:
-		return errors.Wrapf(ErrUnexpectedStatus, response.Status)
+		return nil, errors.Wrapf(ErrUnexpectedStatus, response.Status)
 	}
 
-	return nil
+	return cryptoPkg.Keccak256(
+		userAddr.Bytes(),
+		providers.GitCoinPassportIdentityProvider.Bytes(),
+	), nil
 }
 
 // watchNewCheckScoreRequest watches for new requests to check user's score

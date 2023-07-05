@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	cryptoPkg "github.com/ethereum/go-ethereum/crypto"
-
 	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/civic"
 	gcpsp "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
@@ -33,6 +31,8 @@ type kycService struct {
 	db                data.MasterQ
 	issuer            issuer.Issuer
 	identityProviders map[providers.IdentityProviderName]providers.IdentityProvider
+
+	nonceLifetime time.Duration
 }
 
 func NewKYCService(cfg config.Config, ctx context.Context) (KYCService, error) {
@@ -46,8 +46,9 @@ func NewKYCService(cfg config.Config, ctx context.Context) (KYCService, error) {
 	}
 
 	return &kycService{
-		db:     pg.NewMasterQ(cfg.DB()),
-		issuer: issuer.New(cfg.Log(), cfg.Issuer()),
+		db:            pg.NewMasterQ(cfg.DB()),
+		issuer:        issuer.New(cfg.Log(), cfg.Issuer()),
+		nonceLifetime: cfg.KYCService().NonceLifeTime,
 		identityProviders: map[providers.IdentityProviderName]providers.IdentityProvider{
 			providers.UnstoppableDomainsIdentityProvider: unstopdom.NewIdentityProvider(
 				cfg.Log().WithField("provider", providers.UnstoppableDomainsIdentityProvider),
@@ -86,19 +87,31 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 		IdentityID: data.NewIdentityID(req.IdentityID),
 	}
 
-	if err = k.identityProviders[req.IdentityProviderName].Verify(&newUser, req.ProviderData); err != nil {
+	if err = k.verifyUser(req, &newUser); err != nil {
 		return nil, errors.Wrap(err, "failed to verify user")
 	}
 
-	if newUser.Status == data.UserStatusVerified {
-		err = k.handleVerifiedUser(&newUser)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to handle verified user")
+	err = k.db.Transaction(func() error {
+		if err = k.db.UsersQ().Upsert(&newUser); err != nil {
+			return errors.Wrap(err, "failed to insert new user into db")
 		}
-	}
 
-	if err = k.db.UsersQ().Upsert(&newUser); err != nil {
-		return nil, errors.Wrap(err, "failed to insert new user into db")
+		if newUser.Status == data.UserStatusVerified {
+			_, err := k.issuer.IssueClaim(
+				newUser.IdentityID.ID,
+				issuer.ClaimTypeNaturalPerson,
+				issuer.IsNaturalPersonCredentialSubject{
+					IsNatural: "1",
+				})
+			if err != nil {
+				return errors.Wrap(err, "failed to issue claim")
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute db transaction")
 	}
 
 	return &newUser, nil
@@ -116,8 +129,8 @@ func (k *kycService) NewNonce(req *requests.NonceRequest) (*data.Nonce, error) {
 
 	nonce := &data.Nonce{
 		EthAddress: req.Address,
-		Message:    newNonce,
-		ExpiresAt:  time.Now().UTC().Add(30 * time.Minute),
+		Nonce:      newNonce,
+		ExpiresAt:  time.Now().Add(k.nonceLifetime),
 	}
 
 	err = k.db.NonceQ().Insert(nonce)
@@ -140,9 +153,13 @@ func (k *kycService) GetVerifyStatus(req *requests.VerifyStatusRequest) (*data.U
 	return user, nil
 }
 
-func (k *kycService) handleVerifiedUser(newUser *data.User) error {
-	providerDataHash := cryptoPkg.Keccak256(newUser.ProviderData)
-	user, err := k.db.UsersQ().WhereProviderHash(providerDataHash).Get()
+func (k *kycService) verifyUser(req *requests.VerifyRequest, newUser *data.User) error {
+	providerHash, err := k.identityProviders[req.IdentityProviderName].Verify(newUser, req.ProviderData)
+	if err != nil {
+		return errors.Wrap(err, "failed to verify with identity provider")
+	}
+
+	user, err := k.db.UsersQ().WhereProviderHash(providerHash).Get()
 	if err != nil {
 		return errors.Wrap(err, "failed to get user from db with the same providerDataHash")
 	}
@@ -150,28 +167,7 @@ func (k *kycService) handleVerifiedUser(newUser *data.User) error {
 		return ErrDuplicatedProviderData
 	}
 
-	newUser.ProviderHash = providerDataHash
-
-	err = k.db.Transaction(func() error {
-		if err = k.db.UsersQ().Upsert(newUser); err != nil {
-			return errors.Wrap(err, "failed to insert new user into db")
-		}
-
-		_, err = k.issuer.IssueClaim(
-			newUser.IdentityID.ID,
-			issuer.ClaimTypeNaturalPerson,
-			issuer.IsNaturalPersonCredentialSubject{
-				IsNatural: "1",
-			})
-		if err != nil {
-			return errors.Wrap(err, "failed to issue claim")
-		}
-
-		return nil
-	})
-	if err != nil {
-		return errors.Wrap(err, "failed to execute db transaction")
-	}
+	newUser.ProviderHash = providerHash
 
 	return nil
 }

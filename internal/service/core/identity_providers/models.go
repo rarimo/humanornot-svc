@@ -18,6 +18,10 @@ func (ipn IdentityProviderName) String() string {
 	return string(ipn)
 }
 
+func (ipn IdentityProviderName) Bytes() []byte {
+	return []byte(ipn.String())
+}
+
 const (
 	UnstoppableDomainsIdentityProvider IdentityProviderName = "unstoppable_domains"
 	CivicIdentityProvider              IdentityProviderName = "civic"

@@ -4,9 +4,6 @@ import (
 	"context"
 	"net"
 
-	"gitlab.com/rarimo/identity/kyc-service/internal/data"
-	"gitlab.com/rarimo/identity/kyc-service/internal/data/pg"
-
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/kit/copus/types"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -21,7 +18,6 @@ type service struct {
 	copus      types.Copus
 	listener   net.Listener
 	kycService core.KYCService
-	masterQ    data.MasterQ
 }
 
 func newService(cfg config.Config, ctx context.Context) *service {
@@ -35,7 +31,6 @@ func newService(cfg config.Config, ctx context.Context) *service {
 		copus:      cfg.Copus(),
 		listener:   cfg.Listener(),
 		kycService: kycService,
-		masterQ:    pg.NewMasterQ(cfg.DB()),
 	}
 }
 

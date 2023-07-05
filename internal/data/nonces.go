@@ -20,7 +20,7 @@ type NonceQ interface {
 
 type Nonce struct {
 	ID         int64          `db:"id"          structs:"-"`
-	Message    string         `db:"message"     structs:"message"`
+	Nonce      string         `db:"nonce"       structs:"nonce"`
 	ExpiresAt  time.Time      `db:"expires_at"  structs:"expires_at"`
 	EthAddress common.Address `db:"eth_address" structs:"eth_address"`
 }

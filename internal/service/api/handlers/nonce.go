@@ -25,5 +25,5 @@ func GetNonce(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ape.Render(w, responses.NewNonce(nonce.Message))
+	ape.Render(w, responses.NewNonce(nonce.Nonce))
 }

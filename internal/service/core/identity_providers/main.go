@@ -5,5 +5,5 @@ import (
 )
 
 type IdentityProvider interface {
-	Verify(user *data.User, verifyProviderDataRaw []byte) error
+	Verify(user *data.User, verifyProviderDataRaw []byte) ([]byte, error)
 }

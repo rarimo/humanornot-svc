@@ -19,7 +19,6 @@ func (s *service) router() chi.Router {
 		ape.CtxMiddleware(
 			handlers.CtxLog(s.log),
 			handlers.CtxKYCService(s.kycService),
-			handlers.CtxMasterQueryer(s.masterQ),
 		),
 	)
 

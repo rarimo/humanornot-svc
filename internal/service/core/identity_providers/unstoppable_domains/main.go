@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	cryptoPkg "github.com/ethereum/go-ethereum/crypto"
+
 	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
 	providers "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers"
 
@@ -35,30 +37,30 @@ func NewIdentityProvider(log *logan.Entry, config *config.UnstoppableDomains) *U
 	}
 }
 
-func (u *UnstoppableDomains) Verify(user *data.User, verifyDataRaw []byte) error {
+func (u *UnstoppableDomains) Verify(user *data.User, verifyDataRaw []byte) ([]byte, error) {
 	var verifyData VerificationData
 	if err := json.Unmarshal(verifyDataRaw, &verifyData); err != nil {
-		return errors.Wrap(err, "failed to unmarshal verification data")
+		return nil, errors.Wrap(err, "failed to unmarshal verification data")
 	}
 
 	userInfo, err := u.retrieveUserInfo(verifyData.AccessToken)
 	if err != nil {
-		return errors.Wrap(err, "failed to retrieve user info")
+		return nil, errors.Wrap(err, "failed to retrieve user info")
 	}
 
 	isValidSignature, err := verifyUserInfoSignature(userInfo)
 	if err != nil {
-		return errors.Wrap(err, "failed to verify user's signature")
+		return nil, errors.Wrap(err, "failed to verify user's signature")
 	}
 	if !isValidSignature {
-		return providers.ErrInvalidUsersSignature
+		return nil, providers.ErrInvalidUsersSignature
 	}
 
 	domainInfoRaw, err := json.Marshal(Domain{
 		Domain: userInfo.Domain,
 	})
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal provider data")
+		return nil, errors.Wrap(err, "failed to marshal provider data")
 	}
 
 	address := common.HexToAddress(userInfo.WalletAddress)
@@ -66,7 +68,10 @@ func (u *UnstoppableDomains) Verify(user *data.User, verifyDataRaw []byte) error
 	user.Status = data.UserStatusVerified
 	user.ProviderData = domainInfoRaw
 
-	return nil
+	return cryptoPkg.Keccak256(
+		[]byte(userInfo.Domain),
+		providers.UnstoppableDomainsIdentityProvider.Bytes(),
+	), nil
 }
 
 func (u *UnstoppableDomains) retrieveUserInfo(accessToken string) (*UserInfo, error) {

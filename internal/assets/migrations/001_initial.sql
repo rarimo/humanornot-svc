@@ -12,7 +12,7 @@ CREATE TABLE users(
 
 CREATE TABLE nonce(
     id          BIGSERIAL PRIMARY KEY       NOT NULL,
-    message     TEXT                        NOT NULL,
+    nonce       TEXT                        NOT NULL,
     expires_at  TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     eth_address BYTEA                       NOT NULL
 );

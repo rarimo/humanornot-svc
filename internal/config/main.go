@@ -19,6 +19,7 @@ type Config interface {
 	UnstoppableDomains() *UnstoppableDomains
 	GitcoinPassportSettings() *GitcoinPassportSettings
 	Issuer() *Issuer
+	KYCService() *KYCService
 }
 
 type config struct {
@@ -33,6 +34,7 @@ type config struct {
 	gitcoinPassportSettings comfig.Once
 	worldcoinSettings       comfig.Once
 	issuer                  comfig.Once
+	kycService              comfig.Once
 }
 
 func New(getter kv.Getter) Config {

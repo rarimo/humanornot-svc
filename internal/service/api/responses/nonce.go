@@ -12,8 +12,7 @@ func NewNonce(nonce string) resources.NonceResponse {
 				Type: resources.NONCE,
 			},
 			Attributes: resources.NonceAttributes{
-				Nonce:   nonce,
-				Message: crypto.NonceToMessage(nonce),
+				Message: crypto.NonceToSignMessage(nonce),
 			},
 		},
 	}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/imroc/req/v3"
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -29,24 +30,24 @@ func NewIdentityProvider(log *logan.Entry, settings *config.WorldcoinSettings) *
 }
 
 // Verify verifies the user's identity
-func (w *Worldcoin) Verify(user *data.User, verifyDataRaw []byte) error {
+func (w *Worldcoin) Verify(user *data.User, verifyDataRaw []byte) ([]byte, error) {
 	var verifyData VerificationData
 	if err := json.Unmarshal(verifyDataRaw, &verifyData); err != nil {
-		return errors.Wrap(err, "failed to unmarshal verification data")
+		return nil, errors.Wrap(err, "failed to unmarshal verification data")
 	}
 
 	userInfo, err := w.retrieveUserInfo(verifyData.IdToken)
 	if err != nil {
-		return errors.Wrap(err, "failed to retrieve user info")
+		return nil, errors.Wrap(err, "failed to retrieve user info")
 	}
 
 	if userInfo.HumanityInfo.LikelyHuman != likelyHumanStrong {
-		return ErrNotLikelyHuman
+		return nil, ErrNotLikelyHuman
 	}
 
 	userInfoRaw, err := json.Marshal(userInfo)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal user info")
+		return nil, errors.Wrap(err, "failed to marshal user info")
 	}
 
 	user.Status = data.UserStatusVerified
@@ -54,7 +55,10 @@ func (w *Worldcoin) Verify(user *data.User, verifyDataRaw []byte) error {
 	// as we don't have the user's eth address, we set it to the zero address
 	user.EthAddress = nil
 
-	return nil
+	return crypto.Keccak256(
+		[]byte(userInfo.Sub),
+		providers.WorldCoinIdentityProvider.Bytes(),
+	), nil
 }
 
 // retrieveUserInfo retrieves the user's info from the Worldcoin API

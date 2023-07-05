@@ -103,13 +103,13 @@ func (q *nonceQ) WhereEthAddress(addresses ...common.Address) data.NonceQ {
 }
 
 func (q *nonceQ) WhereExpiresAtLt(expiresAt time.Time) data.NonceQ {
-	q.sel = q.sel.Where(sq.Lt{expiresAtColumnName: &expiresAt})
-	q.del = q.del.Where(sq.Lt{expiresAtColumnName: &expiresAt})
+	q.sel = q.sel.Where(sq.Lt{expiresAtColumnName: expiresAt.UTC()})
+	q.del = q.del.Where(sq.Lt{expiresAtColumnName: expiresAt.UTC()})
 	return q
 }
 
 func (q *nonceQ) WhereExpiresAtGt(expiresAt time.Time) data.NonceQ {
-	q.sel = q.sel.Where(sq.Gt{expiresAtColumnName: &expiresAt})
-	q.del = q.del.Where(sq.Gt{expiresAtColumnName: &expiresAt})
+	q.sel = q.sel.Where(sq.Gt{expiresAtColumnName: expiresAt.UTC()})
+	q.del = q.del.Where(sq.Gt{expiresAtColumnName: expiresAt.UTC()})
 	return q
 }
