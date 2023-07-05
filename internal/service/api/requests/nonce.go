@@ -2,42 +2,64 @@ package requests
 
 import (
 	"encoding/json"
+	"net/http"
+
+	"github.com/ethereum/go-ethereum/common"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/pkg/errors"
-	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
+
 	"gitlab.com/rarimo/identity/kyc-service/resources"
-	"net/http"
-	"strings"
 )
 
 type NonceRequest struct {
+	Address common.Address
+}
+
+type nonceRequest struct {
 	Data resources.NonceRequest `json:"data"`
 }
 
-func NewNonceRequest(r *http.Request) (resources.NonceRequest, error) {
-	var request NonceRequest
+func NewNonceRequest(r *http.Request) (*NonceRequest, error) {
+	var requestBody nonceRequest
 
-	err := json.NewDecoder(r.Body).Decode(&request)
+	err := json.NewDecoder(r.Body).Decode(&requestBody)
 	if err != nil {
-		return resources.NonceRequest{}, errors.Wrap(err, "failed to unmarshal")
+		return nil, errors.Wrap(err, "failed to unmarshal")
 	}
 
-	request.Data.Attributes.Address = strings.ToLower(request.Data.Attributes.Address)
+	if err := requestBody.validate(); err != nil {
+		return nil, err
+	}
 
-	return request.Data, request.validate()
+	return requestBody.parse(), nil
 }
 
-func (r *NonceRequest) validate() error {
+func (r *nonceRequest) validate() error {
 	return validation.Errors{
 		"/data/type": validation.Validate(
-			r.Data.Type,
-			validation.Required,
-			validation.In(resources.NONCE_REQUEST),
+			r.Data.Type, validation.Required, validation.In(resources.NONCE_REQUEST),
 		),
 		"/data/attributes/address": validation.Validate(
-			r.Data.Attributes.Address,
-			validation.Required,
-			validation.Match(crypto.AddressRegexp),
+			r.Data.Attributes.Address, validation.Required, validation.By(MustBeEthAddress),
 		),
 	}.Filter()
+}
+
+func (r *nonceRequest) parse() *NonceRequest {
+	return &NonceRequest{
+		Address: common.HexToAddress(r.Data.Attributes.Address),
+	}
+}
+
+func MustBeEthAddress(src interface{}) error {
+	raw, ok := src.(string)
+	if !ok {
+		return errors.New("it is not a string")
+	}
+
+	if !common.IsHexAddress(raw) {
+		return errors.New("it is not a valid ethereum address")
+	}
+
+	return nil
 }

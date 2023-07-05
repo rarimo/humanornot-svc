@@ -3,10 +3,10 @@ package gcpsp
 import (
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/api/requests"
 	"gitlab.com/rarimo/identity/kyc-service/resources"
 )
 
@@ -62,20 +62,6 @@ var (
 func (v VerificationData) Validate() error {
 	return validation.Errors{
 		"signature": validation.Validate(v.Signature, validation.Required),
-		"address":   validation.Validate(v.Address, validation.Required, validation.By(MustBeEthAddress)),
+		"address":   validation.Validate(v.Address, validation.Required, validation.By(requests.MustBeEthAddress)),
 	}.Filter()
-}
-
-// MustBeEthAddress is a validation.RuleFunc that validates address
-func MustBeEthAddress(value interface{}) error {
-	raw, ok := value.(string)
-	if !ok {
-		return validation.NewError("address", "invalid data type")
-	}
-
-	if !common.IsHexAddress(raw) {
-		return validation.NewError("address", "invalid address")
-	}
-
-	return nil
 }

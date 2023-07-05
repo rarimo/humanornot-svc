@@ -14,6 +14,7 @@ import (
 type UsersQ interface {
 	Get() (*User, error)
 	Select() ([]User, error)
+	Insert(user *User) error
 	Upsert(user *User) error
 	Update(user *User) error
 
@@ -22,6 +23,7 @@ type UsersQ interface {
 	WhereStatus(status UserStatus) UsersQ
 	WhereIdentityID(id *IdentityID) UsersQ
 	WhereEthAddress(address common.Address) UsersQ
+	WhereProviderHash(providerHash []byte) UsersQ
 }
 
 type User struct {
@@ -36,9 +38,16 @@ type User struct {
 	// ProviderData Store raw information that received from identity provider.
 	// Its json structure depends on identity provider.
 	ProviderData []byte `db:"provider_data" structs:"provider_data"`
+
+	// ProviderHash is used for data uniqueness check.
+	ProviderHash []byte `db:"provider_hash" structs:"provider_hash"`
 }
 
 type UserStatus string
+
+func (s UserStatus) String() string {
+	return string(s)
+}
 
 const (
 	UserStatusInitialized UserStatus = "initialized"

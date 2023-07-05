@@ -49,26 +49,23 @@ func (c *Civic) Verify(user *data.User, verifyDataRaw []byte) error {
 		return errors.Wrap(providers.ErrInvalidVerificationData, err.Error())
 	}
 
-	userAddr := common.HexToAddress(verifyData.Address)
-
-	if err := c.verifySignature(verifyData, userAddr); err != nil {
+	if err := c.verifySignature(verifyData, verifyData.Address); err != nil {
 		return errors.Wrap(err, "failed to verify signature")
 	}
 
-	if err := c.verifyGatewayToken(chainNameFromString[verifyData.ChainName], userAddr); err != nil {
+	if err := c.verifyGatewayToken(chainNameFromString[verifyData.ChainName], verifyData.Address); err != nil {
 		return errors.Wrap(err, "failed to verify gateway token")
 	}
 
-	user.EthAddress = &userAddr
-	user.Status = data.UserStatusVerified
-
 	providerDataRaw, err := json.Marshal(ProviderData{
-		Address: userAddr,
+		Address: verifyData.Address,
 	})
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal provider data")
 	}
 
+	user.EthAddress = &verifyData.Address
+	user.Status = data.UserStatusVerified
 	user.ProviderData = providerDataRaw
 
 	return nil
@@ -76,7 +73,7 @@ func (c *Civic) Verify(user *data.User, verifyDataRaw []byte) error {
 
 func (c *Civic) verifySignature(verifyData VerificationData, userAddress common.Address) error {
 	if !c.skipSigCheck {
-		nonce, err := c.masterQ.NonceQ().FilterByAddress(verifyData.Address).Get()
+		nonce, err := c.masterQ.NonceQ().WhereEthAddress(verifyData.Address).Get()
 		if err != nil {
 			return errors.Wrap(err, "failed to get nonce by address")
 		}
@@ -89,7 +86,7 @@ func (c *Civic) verifySignature(verifyData VerificationData, userAddress common.
 			return providers.ErrInvalidUsersSignature
 		}
 
-		if err = c.masterQ.NonceQ().FilterByAddress(verifyData.Address).Delete(); err != nil {
+		if err = c.masterQ.NonceQ().WhereEthAddress(verifyData.Address).Delete(); err != nil {
 			return errors.Wrap(err, "failed to delete nonce")
 		}
 	}

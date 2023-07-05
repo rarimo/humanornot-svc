@@ -4,6 +4,9 @@ import (
 	"context"
 	"time"
 
+	cryptoPkg "github.com/ethereum/go-ethereum/crypto"
+
+	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/civic"
 	gcpsp "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/worldcoin"
@@ -22,6 +25,8 @@ import (
 
 type KYCService interface {
 	NewVerifyRequest(*requests.VerifyRequest) (*data.User, error)
+	NewNonce(*requests.NonceRequest) (*data.Nonce, error)
+	GetVerifyStatus(*requests.VerifyStatusRequest) (*data.User, error)
 }
 
 type kycService struct {
@@ -86,14 +91,9 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 	}
 
 	if newUser.Status == data.UserStatusVerified {
-		_, err = k.issuer.IssueClaim(
-			newUser.IdentityID.ID,
-			issuer.ClaimTypeNaturalPerson,
-			issuer.IsNaturalPersonCredentialSubject{
-				IsNatural: "1",
-			})
+		err = k.handleVerifiedUser(&newUser)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to issue claim")
+			return nil, errors.Wrap(err, "failed to handle verified user")
 		}
 	}
 
@@ -102,4 +102,76 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 	}
 
 	return &newUser, nil
+}
+
+func (k *kycService) NewNonce(req *requests.NonceRequest) (*data.Nonce, error) {
+	if err := k.db.NonceQ().WhereEthAddress(req.Address).Delete(); err != nil {
+		return nil, errors.Wrap(err, "failed to delete old nonce")
+	}
+
+	newNonce, err := crypto.NewNonce()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate nonce")
+	}
+
+	nonce := &data.Nonce{
+		EthAddress: req.Address,
+		Message:    newNonce,
+		ExpiresAt:  time.Now().UTC().Add(30 * time.Minute),
+	}
+
+	err = k.db.NonceQ().Insert(nonce)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to insert nonce into db")
+	}
+
+	return nonce, nil
+}
+
+func (k *kycService) GetVerifyStatus(req *requests.VerifyStatusRequest) (*data.User, error) {
+	user, err := k.db.UsersQ().WhereID(req.VerifyID).Get()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get user from db")
+	}
+	if user == nil {
+		return nil, ErrUserNotFound
+	}
+
+	return user, nil
+}
+
+func (k *kycService) handleVerifiedUser(newUser *data.User) error {
+	providerDataHash := cryptoPkg.Keccak256(newUser.ProviderData)
+	user, err := k.db.UsersQ().WhereProviderHash(providerDataHash).Get()
+	if err != nil {
+		return errors.Wrap(err, "failed to get user from db with the same providerDataHash")
+	}
+	if user != nil {
+		return ErrDuplicatedProviderData
+	}
+
+	newUser.ProviderHash = providerDataHash
+
+	err = k.db.Transaction(func() error {
+		if err = k.db.UsersQ().Upsert(newUser); err != nil {
+			return errors.Wrap(err, "failed to insert new user into db")
+		}
+
+		_, err = k.issuer.IssueClaim(
+			newUser.IdentityID.ID,
+			issuer.ClaimTypeNaturalPerson,
+			issuer.IsNaturalPersonCredentialSubject{
+				IsNatural: "1",
+			})
+		if err != nil {
+			return errors.Wrap(err, "failed to issue claim")
+		}
+
+		return nil
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed to execute db transaction")
+	}
+
+	return nil
 }

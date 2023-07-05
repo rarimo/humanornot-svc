@@ -56,6 +56,21 @@ func (q *usersQ) Get() (*data.User, error) {
 	return &result, nil
 }
 
+func (q *usersQ) Insert(user *data.User) error {
+	clauses := structs.Map(user)
+	clauses[identityIDColumnName] = user.IdentityID
+
+	err := q.db.Exec(
+		sq.Insert(usersTableName).
+			SetMap(clauses),
+	)
+	if err != nil {
+		return errors.Wrap(err, "failed to insert rows")
+	}
+
+	return nil
+}
+
 func (q *usersQ) Upsert(user *data.User) error {
 	clauses := structs.Map(user)
 	clauses[identityIDColumnName] = user.IdentityID
@@ -67,10 +82,12 @@ func (q *usersQ) Upsert(user *data.User) error {
 				"DO UPDATE SET " +
 				"status = EXCLUDED.status, " +
 				"eth_address = EXCLUDED.eth_address, " +
-				"provider_data = EXCLUDED.provider_data"),
+				"provider_data = EXCLUDED.provider_data, " +
+				"created_at = EXCLUDED.created_at, " +
+				"provider_hash = EXCLUDED.provider_hash"),
 	)
 	if err != nil {
-		return errors.Wrap(err, "failed to insert rows")
+		return errors.Wrap(err, "failed to upsert rows")
 	}
 
 	return nil
@@ -111,5 +128,10 @@ func (q *usersQ) WhereEthAddress(address common.Address) data.UsersQ {
 
 func (q *usersQ) WhereIdentityID(identityID *data.IdentityID) data.UsersQ {
 	q.sel = q.sel.Where(sq.Eq{identityIDColumnName: identityID})
+	return q
+}
+
+func (q *usersQ) WhereProviderHash(providerHash []byte) data.UsersQ {
+	q.sel = q.sel.Where(sq.Eq{providerHashColumnName: providerHash})
 	return q
 }

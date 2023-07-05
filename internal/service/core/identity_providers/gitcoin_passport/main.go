@@ -70,7 +70,7 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyProviderDataRaw []byte) 
 	userAddr := common.HexToAddress(verifyData.Address)
 
 	if !g.settings.SkipSigCheck {
-		nonce, err := g.masterQ.NonceQ().FilterByAddress(verifyData.Address).Get()
+		nonce, err := g.masterQ.NonceQ().WhereEthAddress(userAddr).Get()
 		if err != nil {
 			return errors.Wrap(err, "failed to get nonce")
 		}
@@ -88,7 +88,7 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyProviderDataRaw []byte) 
 			return providers.ErrInvalidUsersSignature
 		}
 
-		if err = g.masterQ.NonceQ().FilterByAddress(verifyData.Address).Delete(); err != nil {
+		if err = g.masterQ.NonceQ().WhereEthAddress(userAddr).Delete(); err != nil {
 			return errors.Wrap(err, "failed to delete nonce")
 		}
 	}

@@ -14,10 +14,6 @@ import (
 	"gitlab.com/rarimo/identity/kyc-service/resources"
 )
 
-const (
-	IdentityProviderPathParam = "identity_provider"
-)
-
 type VerifyRequest struct {
 	IdentityProviderName providers.IdentityProviderName
 	ProviderData         []byte

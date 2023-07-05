@@ -2,92 +2,114 @@ package pg
 
 import (
 	"database/sql"
-	"gitlab.com/rarimo/identity/kyc-service/internal/data"
+	"fmt"
 	"time"
+
+	"github.com/ethereum/go-ethereum/common"
+
+	"gitlab.com/rarimo/identity/kyc-service/internal/data"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/fatih/structs"
+	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/kit/pgdb"
-	"gitlab.com/distributed_lab/logan/v3/errors"
 )
 
 const nonceTableName = "nonce"
 
 func newNonceQ(db *pgdb.DB) data.NonceQ {
 	return &nonceQ{
-		db:  db,
-		sql: sq.StatementBuilder,
+		db:  db.Clone(),
+		sel: sq.Select("*").From(nonceTableName),
+		del: sq.Delete(nonceTableName),
 	}
 }
 
 type nonceQ struct {
 	db  *pgdb.DB
-	sql sq.StatementBuilderType
+	sel sq.SelectBuilder
+	del sq.DeleteBuilder
 }
 
 func (q *nonceQ) Get() (*data.Nonce, error) {
 	var result data.Nonce
-	err := q.db.Get(&result, q.sql.Select("*").From(nonceTableName))
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
+
+	err := q.db.Get(&result, q.sel)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get nonce from db")
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
+		return nil, errors.Wrap(err, "failed to get rows")
 	}
+
 	return &result, nil
 }
 
 func (q *nonceQ) Select() ([]data.Nonce, error) {
 	var result []data.Nonce
-	err := q.db.Select(&result, q.sql.Select("*").From(nonceTableName))
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
+
+	err := q.db.Select(&result, q.sel)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select nonces from db")
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
+		return nil, errors.Wrap(err, "failed to select rows")
 	}
+
 	return result, nil
 }
 
-func (q *nonceQ) Insert(value data.Nonce) (*data.Nonce, error) {
-	clauses := structs.Map(value)
-
-	var result data.Nonce
-	stmt := sq.Insert(nonceTableName).SetMap(clauses).Suffix("returning *")
-	err := q.db.Get(&result, stmt)
+func (q *nonceQ) Insert(value *data.Nonce) error {
+	err := q.db.Get(&value.ID,
+		sq.Insert(nonceTableName).
+			SetMap(structs.Map(value)).
+			Suffix(fmt.Sprintf("returning %s", idColumnName)),
+	)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to insert nonce to db")
+		return errors.Wrap(err, "failed to insert rows")
 	}
-	return &result, nil
-}
 
-func (q *nonceQ) Update(value data.Nonce) (*data.Nonce, error) {
-	clauses := structs.Map(value)
-
-	var result data.Nonce
-	stmt := q.sql.Update(nonceTableName).SetMap(clauses).Suffix("returning *")
-	err := q.db.Get(&result, stmt)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to update nonce in db")
-	}
-	return &result, nil
-}
-
-func (q *nonceQ) Delete() error {
-	err := q.db.Exec(q.sql.Delete(nonceTableName))
-	if err != nil {
-		return errors.Wrap(err, "failed to delete nonces from db")
-	}
 	return nil
 }
 
-func (q *nonceQ) FilterByAddress(addresses ...string) data.NonceQ {
-	pred := sq.Eq{"address": addresses}
-	q.sql = q.sql.Where(pred)
+func (q *nonceQ) Update(value *data.Nonce) error {
+	err := q.db.Exec(
+		sq.Update(nonceTableName).
+			SetMap(structs.Map(value)).
+			Where(sq.Eq{idColumnName: value.ID}),
+	)
+	if err != nil {
+		return errors.Wrap(err, "failed to update rows")
+	}
+
+	return nil
+}
+
+func (q *nonceQ) Delete() error {
+	err := q.db.Exec(q.del)
+	if err != nil {
+		return errors.Wrap(err, "failed to delete rows")
+	}
+
+	return nil
+}
+
+func (q *nonceQ) WhereEthAddress(addresses ...common.Address) data.NonceQ {
+	q.sel = q.sel.Where(sq.Eq{ethAddressColumnName: addresses})
+	q.del = q.del.Where(sq.Eq{ethAddressColumnName: addresses})
 	return q
 }
 
-func (q *nonceQ) FilterExpired() data.NonceQ {
-	q.sql = sq.StatementBuilder.Where("expires_at < ?", time.Now().Unix())
+func (q *nonceQ) WhereExpiresAtLt(expiresAt time.Time) data.NonceQ {
+	q.sel = q.sel.Where(sq.Lt{expiresAtColumnName: &expiresAt})
+	q.del = q.del.Where(sq.Lt{expiresAtColumnName: &expiresAt})
+	return q
+}
+
+func (q *nonceQ) WhereExpiresAtGt(expiresAt time.Time) data.NonceQ {
+	q.sel = q.sel.Where(sq.Gt{expiresAtColumnName: &expiresAt})
+	q.del = q.del.Where(sq.Gt{expiresAtColumnName: &expiresAt})
 	return q
 }

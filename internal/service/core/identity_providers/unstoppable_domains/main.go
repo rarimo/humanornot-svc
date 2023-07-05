@@ -54,10 +54,6 @@ func (u *UnstoppableDomains) Verify(user *data.User, verifyDataRaw []byte) error
 		return providers.ErrInvalidUsersSignature
 	}
 
-	address := common.HexToAddress(userInfo.WalletAddress)
-	user.EthAddress = &address
-	user.Status = data.UserStatusVerified
-
 	domainInfoRaw, err := json.Marshal(Domain{
 		Domain: userInfo.Domain,
 	})
@@ -65,6 +61,9 @@ func (u *UnstoppableDomains) Verify(user *data.User, verifyDataRaw []byte) error
 		return errors.Wrap(err, "failed to marshal provider data")
 	}
 
+	address := common.HexToAddress(userInfo.WalletAddress)
+	user.EthAddress = &address
+	user.Status = data.UserStatusVerified
 	user.ProviderData = domainInfoRaw
 
 	return nil

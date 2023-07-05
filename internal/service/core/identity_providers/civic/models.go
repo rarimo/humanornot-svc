@@ -4,8 +4,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/pkg/errors"
-
-	gcpsp "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
 )
 
 var (
@@ -41,9 +39,9 @@ type ProviderData struct {
 }
 
 type VerificationData struct {
-	ChainName string `json:"chain_name"`
-	Signature string `json:"signature"`
-	Address   string `json:"address"`
+	ChainName string         `json:"chain_name"`
+	Signature string         `json:"signature"`
+	Address   common.Address `json:"address"`
 }
 
 func (v VerificationData) Validate() error {
@@ -55,7 +53,7 @@ func (v VerificationData) Validate() error {
 			v.Signature, validation.Required,
 		),
 		"address": validation.Validate(
-			v.Address, validation.Required, validation.By(gcpsp.MustBeEthAddress),
+			v.Address, validation.Required,
 		),
 	}.Filter()
 }

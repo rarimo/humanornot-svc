@@ -2,10 +2,11 @@ package nonceCleaner
 
 import (
 	"context"
+	"time"
+
 	"gitlab.com/rarimo/identity/kyc-service/internal/config"
 	"gitlab.com/rarimo/identity/kyc-service/internal/data"
 	"gitlab.com/rarimo/identity/kyc-service/internal/data/pg"
-	"time"
 
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/running"
@@ -28,7 +29,7 @@ func (s *NonceCleaner) Run(ctx context.Context) {
 		s.logger,
 		"nonce-cleaner",
 		func(ctx context.Context) error {
-			return s.storage.FilterExpired().Delete()
+			return s.storage.WhereExpiresAtLt(time.Now()).Delete()
 		},
 		30*time.Minute,
 		1*time.Second,

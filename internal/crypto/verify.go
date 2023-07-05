@@ -2,7 +2,6 @@ package crypto
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -12,10 +11,6 @@ import (
 
 const (
 	EthereumMessageSalt = "\x19Ethereum Signed Message:\n%d%s"
-)
-
-var (
-	AddressRegexp = regexp.MustCompile("^(0x)?[0-9a-fA-F]{40}$")
 )
 
 // VerifyEIP191Signature verifies the signature of a message using the EIP-191 standard.

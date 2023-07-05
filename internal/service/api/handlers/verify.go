@@ -28,17 +28,18 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 
 	user, err := KYCService(r).NewVerifyRequest(req)
 	switch {
-	case errors.Is(err, core.ErrUserAlreadyVerifiedByEthAddress),
-		errors.Is(err, core.ErrUserAlreadyVerifiedByIdentityID):
-		Log(r).WithField("reason", err).Debug("Conflict")
-		ape.RenderErr(w, problems.Conflict())
-		return
 	case errors.Is(err, providers.ErrInvalidVerificationData):
 		Log(r).WithField("reason", err).
 			WithField("identity-provider", req.IdentityProviderName).
 			WithField("provider-data", string(req.ProviderData)).
 			Debug("Bad request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
+		return
+	case errors.Is(err, core.ErrUserAlreadyVerifiedByEthAddress),
+		errors.Is(err, core.ErrUserAlreadyVerifiedByIdentityID),
+		errors.Is(err, core.ErrDuplicatedProviderData):
+		Log(r).WithField("reason", err).Debug("Conflict")
+		ape.RenderErr(w, problems.Conflict())
 		return
 	case isUnauthorizedError(err):
 		Log(r).WithField("reason", err).

@@ -11,10 +11,12 @@ const (
 )
 
 const (
-	idColumnName         = "id"
-	statusColumnName     = "status"
-	ethAddressColumnName = "eth_address"
-	identityIDColumnName = "identity_id"
+	idColumnName           = "id"
+	statusColumnName       = "status"
+	ethAddressColumnName   = "eth_address"
+	identityIDColumnName   = "identity_id"
+	providerHashColumnName = "provider_hash"
+	expiresAtColumnName    = "expires_at"
 )
 
 var sortColumns = map[string]string{
