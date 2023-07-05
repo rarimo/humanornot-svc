@@ -1,22 +1,17 @@
 allOf:
   - $ref: '#/components/schemas/NonceKey'
   - type: object
+    x-go-is-request: true
     required:
       - attributes
     properties:
       attributes:
         type: object
         required:
-          - message
-          - nonce
+          - address
         properties:
-          message:
+          address:
             type: string
-            example: Authentication Message. 4efad2f9ec175291a8632582d845641b
-            description: >-
-              Message to be signed with MetaMask's `personal_sign`. Contains
-              some user-friendly text and a random nonce.
-          nonce:
-            type: string
-            example: 4efad2f9ec175291a8632582d845641b
-            description: Random nonce
+            format: string
+            example: '0xb4a8bD857146d664961907E0Bba35da59c950390'
+            description: Account Address from MetaMask

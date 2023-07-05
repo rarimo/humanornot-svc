@@ -8,12 +8,12 @@ type Nonce struct {
 	Key
 	Attributes NonceAttributes `json:"attributes"`
 }
-type NonceResponse struct {
+type NonceRequest struct {
 	Data     Nonce    `json:"data"`
 	Included Included `json:"included"`
 }
 
-type NonceListResponse struct {
+type NonceListRequest struct {
 	Data     []Nonce  `json:"data"`
 	Included Included `json:"included"`
 	Links    *Links   `json:"links"`

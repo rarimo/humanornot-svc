@@ -5,8 +5,8 @@ import (
 	"gitlab.com/rarimo/identity/kyc-service/resources"
 )
 
-func NewVerifyStatus(user *data.User) resources.VerifyStatusResponse {
-	return resources.VerifyStatusResponse{
+func NewVerifyStatus(user *data.User) resources.VerifyStatusRequest {
+	return resources.VerifyStatusRequest{
 		Data: resources.VerifyStatus{
 			Key: resources.Key{
 				ID:   user.ID.String(),

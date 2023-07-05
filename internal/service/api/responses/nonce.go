@@ -5,13 +5,13 @@ import (
 	"gitlab.com/rarimo/identity/kyc-service/resources"
 )
 
-func NewNonce(nonce string) resources.NonceResponse {
-	return resources.NonceResponse{
-		Data: resources.Nonce{
+func NewNonce(nonce string) resources.NewNonceResponse {
+	return resources.NewNonceResponse{
+		Data: resources.NewNonce{
 			Key: resources.Key{
 				Type: resources.NONCE,
 			},
-			Attributes: resources.NonceAttributes{
+			Attributes: resources.NewNonceAttributes{
 				Message: crypto.NonceToSignMessage(nonce),
 			},
 		},

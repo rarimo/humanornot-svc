@@ -6,7 +6,7 @@ properties:
   type:
     type: string
     enum:
-      - nonce_request
+      - nonce
   id:
     type: string
     format: string

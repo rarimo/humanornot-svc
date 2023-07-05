@@ -5,9 +5,7 @@ post:
   description: >-
     Request a new nonce message here, sign it with metamask
 
-
     Nonce message is issued per-address and expires quickly
-
 
     Requesting a new nonce message overwrites the previous one and invalidates
     it
@@ -22,7 +20,7 @@ post:
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/NonceRequest'
+              $ref: '#/components/schemas/Nonce'
   responses:
     '200':
       description: Success
@@ -33,7 +31,7 @@ post:
             properties:
               data:
                 type: object
-                $ref: '#/components/schemas/Nonce'
+                $ref: '#/components/schemas/NewNonce'
     '400':
       description: Bad request
     '500':

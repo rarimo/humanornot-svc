@@ -1,6 +1,7 @@
 allOf:
   - $ref: '#/components/schemas/VerifyStatusKey'
   - type: object
+    x-go-is-request: true
     required:
       - attributes
     properties:

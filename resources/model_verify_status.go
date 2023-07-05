@@ -8,12 +8,12 @@ type VerifyStatus struct {
 	Key
 	Attributes VerifyStatusAttributes `json:"attributes"`
 }
-type VerifyStatusResponse struct {
+type VerifyStatusRequest struct {
 	Data     VerifyStatus `json:"data"`
 	Included Included     `json:"included"`
 }
 
-type VerifyStatusListResponse struct {
+type VerifyStatusListRequest struct {
 	Data     []VerifyStatus `json:"data"`
 	Included Included       `json:"included"`
 	Links    *Links         `json:"links"`

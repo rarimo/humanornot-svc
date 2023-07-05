@@ -16,7 +16,7 @@ type NonceRequest struct {
 }
 
 type nonceRequest struct {
-	Data resources.NonceRequest `json:"data"`
+	Data resources.Nonce `json:"data"`
 }
 
 func NewNonceRequest(r *http.Request) (*NonceRequest, error) {
