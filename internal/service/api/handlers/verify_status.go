@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"errors"
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core"
 	"net/http"
 
 	"gitlab.com/distributed_lab/ape"
@@ -20,6 +22,9 @@ func GetVerifyStatus(w http.ResponseWriter, r *http.Request) {
 
 	user, err := KYCService(r).GetVerifyStatus(req)
 	switch {
+	case errors.Is(err, core.ErrUserNotFound):
+		ape.RenderErr(w, problems.NotFound())
+		return
 	case err != nil:
 		Log(r).WithError(err).Error("failed to get user")
 		ape.RenderErr(w, problems.InternalError())

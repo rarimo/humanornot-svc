@@ -93,7 +93,7 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 
 	err = k.db.Transaction(func() error {
 		if err = k.db.UsersQ().Upsert(&newUser); err != nil {
-			return errors.Wrap(err, "failed to insert new user into db")
+			return errors.Wrap(err, "failed to upsert user into db")
 		}
 
 		if newUser.Status == data.UserStatusVerified {
