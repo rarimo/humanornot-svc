@@ -17,18 +17,22 @@ import (
 
 const nonceTableName = "nonce"
 
-func newNonceQ(db *pgdb.DB) data.NonceQ {
+type nonceQ struct {
+	db  *pgdb.DB
+	sel sq.SelectBuilder
+	del sq.DeleteBuilder
+}
+
+func NewNonceQ(db *pgdb.DB) data.NonceQ {
 	return &nonceQ{
-		db:  db.Clone(),
+		db:  db,
 		sel: sq.Select("*").From(nonceTableName),
 		del: sq.Delete(nonceTableName),
 	}
 }
 
-type nonceQ struct {
-	db  *pgdb.DB
-	sel sq.SelectBuilder
-	del sq.DeleteBuilder
+func (q *nonceQ) New() data.NonceQ {
+	return NewNonceQ(q.db.Clone())
 }
 
 func (q *nonceQ) Get() (*data.Nonce, error) {

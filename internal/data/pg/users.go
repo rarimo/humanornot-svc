@@ -21,9 +21,13 @@ type usersQ struct {
 
 func NewUsersQ(db *pgdb.DB) data.UsersQ {
 	return &usersQ{
-		db:  db.Clone(),
+		db:  db,
 		sel: sq.Select("*").From(usersTableName),
 	}
+}
+
+func (q *usersQ) New() data.UsersQ {
+	return NewUsersQ(q.db.Clone())
 }
 
 func (q *usersQ) Select() ([]data.User, error) {

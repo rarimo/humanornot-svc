@@ -29,12 +29,12 @@ type masterQ struct {
 
 func NewMasterQ(db *pgdb.DB) data.MasterQ {
 	return &masterQ{
-		db: db.Clone(),
+		db: db,
 	}
 }
 
 func (q *masterQ) New() data.MasterQ {
-	return NewMasterQ(q.db)
+	return NewMasterQ(q.db.Clone())
 }
 
 func (q *masterQ) UsersQ() data.UsersQ {
@@ -42,7 +42,7 @@ func (q *masterQ) UsersQ() data.UsersQ {
 }
 
 func (q *masterQ) NonceQ() data.NonceQ {
-	return newNonceQ(q.db)
+	return NewNonceQ(q.db)
 }
 
 func (q *masterQ) Transaction(fn func() error) error {
