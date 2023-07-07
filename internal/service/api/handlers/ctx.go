@@ -33,5 +33,5 @@ func CtxKYCService(kycService core.KYCService) func(context.Context) context.Con
 }
 
 func KYCService(r *http.Request) core.KYCService {
-	return r.Context().Value(kycServiceCtxKey).(core.KYCService)
+	return r.Context().Value(kycServiceCtxKey).(core.KYCService).New()
 }
