@@ -77,30 +77,32 @@ func (c *Civic) Verify(user *data.User, verifyDataRaw []byte) ([]byte, error) {
 }
 
 func (c *Civic) verifySignature(verifyData VerificationData, userAddress common.Address) error {
-	if !c.skipSigCheck {
-		nonce, err := c.masterQ.NonceQ().
-			WhereEthAddress(verifyData.Address).
-			WhereExpiresAtGt(time.Now()).
-			Get()
-		if err != nil {
-			return errors.Wrap(err, "failed to get nonce by address")
-		}
-		if nonce == nil {
-			return providers.ErrNonceNotFound
-		}
+	if c.skipSigCheck {
+		return nil
+	}
 
-		valid, err := crypto.VerifyEIP191Signature(
-			verifyData.Signature,
-			crypto.NonceToSignMessage(nonce.Nonce),
-			userAddress,
-		)
-		if err != nil || !valid {
-			return providers.ErrInvalidUsersSignature
-		}
+	nonce, err := c.masterQ.NonceQ().
+		WhereEthAddress(verifyData.Address).
+		WhereExpiresAtGt(time.Now()).
+		Get()
+	if err != nil {
+		return errors.Wrap(err, "failed to get nonce by address")
+	}
+	if nonce == nil {
+		return providers.ErrNonceNotFound
+	}
 
-		if err = c.masterQ.NonceQ().WhereEthAddress(verifyData.Address).Delete(); err != nil {
-			return errors.Wrap(err, "failed to delete nonce")
-		}
+	valid, err := crypto.VerifyEIP191Signature(
+		verifyData.Signature,
+		crypto.NonceToSignMessage(nonce.Nonce),
+		userAddress,
+	)
+	if err != nil || !valid {
+		return providers.ErrInvalidUsersSignature
+	}
+
+	if err = c.masterQ.NonceQ().WhereEthAddress(verifyData.Address).Delete(); err != nil {
+		return errors.Wrap(err, "failed to delete nonce")
 	}
 
 	return nil

@@ -85,7 +85,7 @@ func (u *UnstoppableDomains) retrieveUserInfo(accessToken string) (*UserInfo, er
 		return nil, errors.Wrap(err, "failed to send get request")
 	}
 
-	if response.StatusCode >= 299 {
+	if response.StatusCode >= http.StatusBadRequest {
 		if response.StatusCode == http.StatusUnauthorized {
 			return nil, providers.ErrInvalidAccessToken
 		}

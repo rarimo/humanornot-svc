@@ -339,7 +339,7 @@ gitlab.com/distributed_lab/lorem
 # gitlab.com/distributed_lab/running v1.6.0
 ## explicit
 gitlab.com/distributed_lab/running
-# gitlab.com/rarimo/identity/issuer v0.0.0-20230628124036-09e8c7aa4a52
+# gitlab.com/rarimo/identity/issuer v0.0.0-20230714110103-a853093c3233
 ## explicit; go 1.19
 gitlab.com/rarimo/identity/issuer/resources
 # golang.org/x/crypto v0.10.0

@@ -19,7 +19,7 @@ require (
 	gitlab.com/distributed_lab/kit v1.11.2
 	gitlab.com/distributed_lab/logan v3.8.1+incompatible
 	gitlab.com/distributed_lab/running v1.6.0
-	gitlab.com/rarimo/identity/issuer v0.0.0-20230628124036-09e8c7aa4a52
+	gitlab.com/rarimo/identity/issuer v0.0.0-20230714110103-a853093c3233
 )
 
 require (

@@ -204,7 +204,7 @@ func (g *GitcoinPassport) getUserScore(address string) (score string, processed 
 		return score, processed, errors.Wrap(err, "failed to send request")
 	}
 
-	if response.StatusCode >= 299 {
+	if response.StatusCode >= http.StatusBadRequest {
 		if response.StatusCode == http.StatusUnauthorized {
 			return score, processed, providers.ErrInvalidAccessToken
 		}
@@ -243,7 +243,7 @@ func (g *GitcoinPassport) submitUserPassport(address string) (*SubmitPassportRes
 		return nil, errors.Wrap(err, "failed to send request")
 	}
 
-	if response.StatusCode >= 299 {
+	if response.StatusCode >= http.StatusBadRequest {
 		if response.StatusCode == http.StatusUnauthorized {
 			return nil, providers.ErrInvalidAccessToken
 		}

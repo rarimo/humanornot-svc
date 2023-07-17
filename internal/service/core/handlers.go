@@ -17,10 +17,8 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get user from db with the same identityID")
 	}
-	if prevUser != nil {
-		if prevUser.Status != data.UserStatusUnverified {
-			return nil, ErrUserAlreadyVerifiedByIdentityID
-		}
+	if prevUser != nil && prevUser.Status != data.UserStatusUnverified {
+		return nil, ErrUserAlreadyVerifiedByIdentityID
 	}
 
 	newUser := data.User{

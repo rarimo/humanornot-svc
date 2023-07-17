@@ -2,9 +2,9 @@ package crypto
 
 import (
 	"crypto/md5"
+	"crypto/rand"
 	"fmt"
 	"io"
-	"math/rand"
 	"strconv"
 	"time"
 
@@ -13,15 +13,18 @@ import (
 
 // NewNonce generates a new nonce.
 func NewNonce() (string, error) {
-	var (
-		hash = md5.New()
-		now  = time.Now().Unix()
-	)
+	hash := md5.New()
 
-	if _, err := io.WriteString(hash, strconv.FormatInt(now, 10)); err != nil {
+	if _, err := io.WriteString(hash, strconv.FormatInt(time.Now().Unix(), 10)); err != nil {
 		return "", errors.Wrap(err, "failed to write string to hash")
 	}
-	if _, err := io.WriteString(hash, strconv.FormatInt(rand.Int63(), 10)); err != nil {
+
+	nonce := make([]byte, 16)
+	if _, err := rand.Read(nonce); err != nil {
+		return "", errors.Wrap(err, "failed to generate nonce")
+	}
+
+	if _, err := io.WriteString(hash, fmt.Sprintf("%x", nonce)); err != nil {
 		return "", errors.Wrap(err, "failed to write string to hash")
 	}
 

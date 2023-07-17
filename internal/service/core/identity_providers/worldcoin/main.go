@@ -73,7 +73,7 @@ func (w *Worldcoin) retrieveUserInfo(accessToken string) (*UserInfo, error) {
 		return nil, errors.Wrap(err, "failed to retrieve user info")
 	}
 
-	if response.StatusCode >= 299 {
+	if response.StatusCode >= http.StatusBadRequest {
 		if response.StatusCode == http.StatusUnauthorized {
 			return nil, providers.ErrInvalidAccessToken
 		}

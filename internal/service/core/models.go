@@ -7,7 +7,7 @@ var (
 	ErrUserNotFound = errors.New("user not found")
 
 	// Conflict errors
-	ErrUserAlreadyVerifiedByEthAddress = errors.New("user already verified by eth address")
-	ErrUserAlreadyVerifiedByIdentityID = errors.New("user already verified by identity id")
-	ErrDuplicatedProviderData          = errors.New("duplicated provider data")
+	ErrUserAlreadyVerifiedByEthAddress = errors.New("eth address already taken")
+	ErrUserAlreadyVerifiedByIdentityID = errors.New("identity already verified")
+	ErrDuplicatedProviderData          = errors.New("duplicate provider data")
 )
