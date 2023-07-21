@@ -32,6 +32,16 @@ type IsNaturalPersonCredentialSubject struct {
 	IsNatural string `json:"is_natural"`
 }
 
+type IdentityProvidersCredentialSubject struct {
+	Provider                 string `json:"provider"`
+	Address                  string `json:"address"`
+	GitcoinPassportScore     string `json:"gitcoin_passport_score"`
+	WorldCoinScore           string `json:"worldcoin_score"`
+	UnstoppableDomain        string `json:"unstoppable_domain"`
+	CivicGatekeeperNetworkID string `json:"civic_gatekeeper_network_id"`
+	KYCAdditionalData        string `json:"kyc_additional_data"`
+}
+
 type IssueClaimResponse struct {
 	Data IssueClaimResponseData `json:"data"`
 }
