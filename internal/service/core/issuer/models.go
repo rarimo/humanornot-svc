@@ -25,7 +25,21 @@ func (c ClaimType) String() string {
 }
 
 const (
-	ClaimTypeNaturalPerson ClaimType = "NaturalPerson"
+	ClaimTypeNaturalPerson     ClaimType = "NaturalPerson"
+	ClaimTypeIdentityProviders ClaimType = "IdentityProviders"
+)
+
+type IdentityProviderName string
+
+func (ipn IdentityProviderName) String() string {
+	return string(ipn)
+}
+
+const (
+	UnstoppableDomainsProviderName IdentityProviderName = "Unstoppable Domains"
+	CivicProviderName              IdentityProviderName = "Civic"
+	GitcoinProviderName            IdentityProviderName = "Gitcoin Passport"
+	WorldCoinProviderName          IdentityProviderName = "Worldcoin"
 )
 
 type IsNaturalPersonCredentialSubject struct {
@@ -33,13 +47,13 @@ type IsNaturalPersonCredentialSubject struct {
 }
 
 type IdentityProvidersCredentialSubject struct {
-	Provider                 string `json:"provider"`
-	Address                  string `json:"address"`
-	GitcoinPassportScore     string `json:"gitcoin_passport_score"`
-	WorldCoinScore           string `json:"worldcoin_score"`
-	UnstoppableDomain        string `json:"unstoppable_domain"`
-	CivicGatekeeperNetworkID string `json:"civic_gatekeeper_network_id"`
-	KYCAdditionalData        string `json:"kyc_additional_data"`
+	Provider                 IdentityProviderName `json:"provider"`
+	Address                  string               `json:"address"`
+	GitcoinPassportScore     string               `json:"gitcoin_passport_score"`
+	WorldCoinScore           string               `json:"worldcoin_score"`
+	UnstoppableDomain        string               `json:"unstoppable_domain"`
+	CivicGatekeeperNetworkID string               `json:"civic_gatekeeper_network_id"`
+	KYCAdditionalData        string               `json:"kyc_additional_data"`
 }
 
 type IssueClaimResponse struct {
