@@ -28,7 +28,8 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 		IdentityID: data.NewIdentityID(req.IdentityID),
 	}
 
-	if err = k.verifyUser(req, &newUser); err != nil {
+	credentialSubject, err := k.verifyUser(req, &newUser)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to verify user")
 	}
 
@@ -40,10 +41,9 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 		if newUser.Status == data.UserStatusVerified {
 			_, err := k.issuer.IssueClaim(
 				newUser.IdentityID.ID,
-				issuer.ClaimTypeNaturalPerson,
-				issuer.IsNaturalPersonCredentialSubject{
-					IsNatural: "1",
-				})
+				issuer.ClaimTypeIdentityProviders,
+				credentialSubject,
+			)
 			if err != nil {
 				return errors.Wrap(err, "failed to issue claim")
 			}
@@ -94,21 +94,23 @@ func (k *kycService) GetVerifyStatus(req *requests.VerifyStatusRequest) (*data.U
 	return user, nil
 }
 
-func (k *kycService) verifyUser(req *requests.VerifyRequest, newUser *data.User) error {
-	providerHash, err := k.identityProviders[req.IdentityProviderName].Verify(newUser, req.ProviderData)
+func (k *kycService) verifyUser(
+	req *requests.VerifyRequest, newUser *data.User,
+) (*issuer.IdentityProvidersCredentialSubject, error) {
+	credSubject, providerHash, err := k.identityProviders[req.IdentityProviderName].Verify(newUser, req.ProviderData)
 	if err != nil {
-		return errors.Wrap(err, "failed to verify with identity provider")
+		return nil, errors.Wrap(err, "failed to verify with identity provider")
 	}
 
 	user, err := k.db.UsersQ().WhereProviderHash(providerHash).Get()
 	if err != nil {
-		return errors.Wrap(err, "failed to get user from db with the same providerDataHash")
+		return nil, errors.Wrap(err, "failed to get user from db with the same providerDataHash")
 	}
 	if user != nil {
-		return ErrDuplicatedProviderData
+		return nil, ErrDuplicatedProviderData
 	}
 
 	newUser.ProviderHash = providerHash
 
-	return nil
+	return credSubject, nil
 }

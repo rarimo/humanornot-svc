@@ -15,6 +15,7 @@ import (
 	"gitlab.com/rarimo/identity/kyc-service/internal/data"
 	providers "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers"
 	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/civic/contracts"
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/issuer"
 )
 
 type Civic struct {
@@ -41,39 +42,45 @@ func NewIdentityProvider(log *logan.Entry, masterQ data.MasterQ, config *config.
 	}, nil
 }
 
-func (c *Civic) Verify(user *data.User, verifyDataRaw []byte) ([]byte, error) {
+func (c *Civic) Verify(
+	user *data.User, verifyDataRaw []byte,
+) (*issuer.IdentityProvidersCredentialSubject, []byte, error) {
 	var verifyData VerificationData
 	if err := json.Unmarshal(verifyDataRaw, &verifyData); err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal verification data")
+		return nil, nil, errors.Wrap(err, "failed to unmarshal verification data")
 	}
 
 	if err := verifyData.Validate(); err != nil {
-		return nil, errors.Wrap(providers.ErrInvalidVerificationData, err.Error())
+		return nil, nil, errors.Wrap(providers.ErrInvalidVerificationData, err.Error())
 	}
 
 	if err := c.verifySignature(verifyData, verifyData.Address); err != nil {
-		return nil, errors.Wrap(err, "failed to verify signature")
+		return nil, nil, errors.Wrap(err, "failed to verify signature")
 	}
 
 	if err := c.verifyGatewayToken(chainNameFromString[verifyData.ChainName], verifyData.Address); err != nil {
-		return nil, errors.Wrap(err, "failed to verify gateway token")
+		return nil, nil, errors.Wrap(err, "failed to verify gateway token")
 	}
 
 	providerDataRaw, err := json.Marshal(ProviderData{
 		Address: verifyData.Address,
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal provider data")
+		return nil, nil, errors.Wrap(err, "failed to marshal provider data")
 	}
 
 	user.EthAddress = &verifyData.Address
 	user.Status = data.UserStatusVerified
 	user.ProviderData = providerDataRaw
 
-	return cryptoPkg.Keccak256(
-		verifyData.Address.Bytes(),
-		providers.CivicIdentityProvider.Bytes(),
-	), nil
+	return &issuer.IdentityProvidersCredentialSubject{
+			Provider:                 issuer.CivicProviderName,
+			Address:                  verifyData.Address.String(),
+			CivicGatekeeperNetworkID: c.GatekeeperNetworkId.String(),
+		}, cryptoPkg.Keccak256(
+			verifyData.Address.Bytes(),
+			providers.CivicIdentityProvider.Bytes(),
+		), nil
 }
 
 func (c *Civic) verifySignature(verifyData VerificationData, userAddress common.Address) error {

@@ -18,6 +18,7 @@ import (
 	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
 	"gitlab.com/rarimo/identity/kyc-service/internal/data"
 	providers "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers"
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/issuer"
 )
 
 // GitcoinPassport is an identity provider
@@ -58,30 +59,32 @@ func NewIdentityProvider(
 	return instance
 }
 
-func (g *GitcoinPassport) Verify(user *data.User, verifyDataRaw []byte) ([]byte, error) {
+func (g *GitcoinPassport) Verify(
+	user *data.User, verifyDataRaw []byte,
+) (*issuer.IdentityProvidersCredentialSubject, []byte, error) {
 	var verifyData VerificationData
 	if err := json.Unmarshal(verifyDataRaw, &verifyData); err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal verification data")
+		return nil, nil, errors.Wrap(err, "failed to unmarshal verification data")
 	}
 
 	if err := verifyData.Validate(); err != nil {
-		return nil, providers.ErrInvalidVerificationData
+		return nil, nil, providers.ErrInvalidVerificationData
 	}
 
 	userAddr := common.HexToAddress(verifyData.Address)
 
 	if err := g.verifySignature(verifyData.Signature, userAddr); err != nil {
-		return nil, errors.Wrap(err, "failed to verify signature")
+		return nil, nil, errors.Wrap(err, "failed to verify signature")
 	}
 
 	response, err := g.submitUserPassport(verifyData.Address)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to submit user's passport")
+		return nil, nil, errors.Wrap(err, "failed to submit user's passport")
 	}
 
 	rawData, err := json.Marshal(response.ProviderData)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal provider data")
+		return nil, nil, errors.Wrap(err, "failed to marshal provider data")
 	}
 
 	user.Status = data.UserStatusPending
@@ -90,7 +93,7 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyDataRaw []byte) ([]byte,
 	switch response.Status {
 	case statusDone:
 		if err := g.validateScore(response.Score); err != nil {
-			return nil, errors.Wrap(err, "failed to validate score")
+			return nil, nil, errors.Wrap(err, "failed to validate score")
 		}
 
 		user.ProviderData = rawData
@@ -98,10 +101,10 @@ func (g *GitcoinPassport) Verify(user *data.User, verifyDataRaw []byte) ([]byte,
 	case statusProcessing:
 		g.scoreReqChan <- *user
 	default:
-		return nil, errors.Wrapf(ErrUnexpectedStatus, response.Status)
+		return nil, nil, errors.Wrapf(ErrUnexpectedStatus, response.Status)
 	}
 
-	return cryptoPkg.Keccak256(
+	return nil, cryptoPkg.Keccak256(
 		userAddr.Bytes(),
 		providers.GitCoinPassportIdentityProvider.Bytes(),
 	), nil

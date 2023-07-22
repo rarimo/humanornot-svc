@@ -12,6 +12,7 @@ import (
 	"gitlab.com/rarimo/identity/kyc-service/internal/config"
 	"gitlab.com/rarimo/identity/kyc-service/internal/data"
 	providers "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers"
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/issuer"
 )
 
 // Worldcoin is a struct that implements the identityproviders.IdentityProvider interface
@@ -30,24 +31,26 @@ func NewIdentityProvider(log *logan.Entry, settings *config.WorldcoinSettings) *
 }
 
 // Verify verifies the user's identity
-func (w *Worldcoin) Verify(user *data.User, verifyDataRaw []byte) ([]byte, error) {
+func (w *Worldcoin) Verify(
+	user *data.User, verifyDataRaw []byte,
+) (*issuer.IdentityProvidersCredentialSubject, []byte, error) {
 	var verifyData VerificationData
 	if err := json.Unmarshal(verifyDataRaw, &verifyData); err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal verification data")
+		return nil, nil, errors.Wrap(err, "failed to unmarshal verification data")
 	}
 
 	userInfo, err := w.retrieveUserInfo(verifyData.IdToken)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to retrieve user info")
+		return nil, nil, errors.Wrap(err, "failed to retrieve user info")
 	}
 
 	if userInfo.HumanityInfo.LikelyHuman != likelyHumanStrong {
-		return nil, ErrNotLikelyHuman
+		return nil, nil, ErrNotLikelyHuman
 	}
 
 	userInfoRaw, err := json.Marshal(userInfo)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal user info")
+		return nil, nil, errors.Wrap(err, "failed to marshal user info")
 	}
 
 	user.Status = data.UserStatusVerified
@@ -55,7 +58,7 @@ func (w *Worldcoin) Verify(user *data.User, verifyDataRaw []byte) ([]byte, error
 	// as we don't have the user's eth address, we set it to the zero address
 	user.EthAddress = nil
 
-	return crypto.Keccak256(
+	return nil, crypto.Keccak256(
 		[]byte(userInfo.Sub),
 		providers.WorldCoinIdentityProvider.Bytes(),
 	), nil

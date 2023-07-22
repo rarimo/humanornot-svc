@@ -8,6 +8,7 @@ import (
 
 	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
 	providers "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers"
+	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/issuer"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/imroc/req/v3"
@@ -37,30 +38,32 @@ func NewIdentityProvider(log *logan.Entry, config *config.UnstoppableDomains) *U
 	}
 }
 
-func (u *UnstoppableDomains) Verify(user *data.User, verifyDataRaw []byte) ([]byte, error) {
+func (u *UnstoppableDomains) Verify(
+	user *data.User, verifyDataRaw []byte,
+) (*issuer.IdentityProvidersCredentialSubject, []byte, error) {
 	var verifyData VerificationData
 	if err := json.Unmarshal(verifyDataRaw, &verifyData); err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal verification data")
+		return nil, nil, errors.Wrap(err, "failed to unmarshal verification data")
 	}
 
 	userInfo, err := u.retrieveUserInfo(verifyData.AccessToken)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to retrieve user info")
+		return nil, nil, errors.Wrap(err, "failed to retrieve user info")
 	}
 
 	isValidSignature, err := verifyUserInfoSignature(userInfo)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to verify user's signature")
+		return nil, nil, errors.Wrap(err, "failed to verify user's signature")
 	}
 	if !isValidSignature {
-		return nil, providers.ErrInvalidUsersSignature
+		return nil, nil, providers.ErrInvalidUsersSignature
 	}
 
 	domainInfoRaw, err := json.Marshal(Domain{
 		Domain: userInfo.Domain,
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal provider data")
+		return nil, nil, errors.Wrap(err, "failed to marshal provider data")
 	}
 
 	address := common.HexToAddress(userInfo.WalletAddress)
@@ -68,10 +71,14 @@ func (u *UnstoppableDomains) Verify(user *data.User, verifyDataRaw []byte) ([]by
 	user.Status = data.UserStatusVerified
 	user.ProviderData = domainInfoRaw
 
-	return cryptoPkg.Keccak256(
-		[]byte(userInfo.Domain),
-		providers.UnstoppableDomainsIdentityProvider.Bytes(),
-	), nil
+	return &issuer.IdentityProvidersCredentialSubject{
+			Provider:          issuer.UnstoppableDomainsProviderName,
+			Address:           userInfo.WalletAddress,
+			UnstoppableDomain: userInfo.Domain,
+		}, cryptoPkg.Keccak256(
+			[]byte(userInfo.Domain),
+			providers.UnstoppableDomainsIdentityProvider.Bytes(),
+		), nil
 }
 
 func (u *UnstoppableDomains) retrieveUserInfo(accessToken string) (*UserInfo, error) {
