@@ -2,6 +2,7 @@ package worldcoin
 
 import (
 	"fmt"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 
 	"github.com/pkg/errors"
 
@@ -41,4 +42,10 @@ var (
 
 func unexpectedStatusCode(statusCode int) error {
 	return errors.New(fmt.Sprintf("received unexpected status code: %d", statusCode))
+}
+
+func (v VerificationData) Validate() error {
+	return validation.Errors{
+		"id_token": validation.Validate(v.IdToken, validation.Required),
+	}.Filter()
 }

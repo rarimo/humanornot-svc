@@ -39,6 +39,10 @@ func (w *Worldcoin) Verify(
 		return nil, nil, errors.Wrap(err, "failed to unmarshal verification data")
 	}
 
+	if err := verifyData.Validate(); err != nil {
+		return nil, nil, providers.ErrInvalidVerificationData
+	}
+
 	userInfo, err := w.retrieveUserInfo(verifyData.IdToken)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to retrieve user info")
@@ -58,10 +62,14 @@ func (w *Worldcoin) Verify(
 	// as we don't have the user's eth address, we set it to the zero address
 	user.EthAddress = nil
 
-	return nil, crypto.Keccak256(
-		[]byte(userInfo.Sub),
-		providers.WorldCoinIdentityProvider.Bytes(),
-	), nil
+	return &issuer.IdentityProvidersCredentialSubject{
+			Provider:          issuer.WorldCoinProviderName,
+			WorldCoinScore:    likelyHumanStrong,
+			KYCAdditionalData: string(userInfoRaw),
+		}, crypto.Keccak256(
+			[]byte(userInfo.Sub),
+			providers.WorldCoinIdentityProvider.Bytes(),
+		), nil
 }
 
 // retrieveUserInfo retrieves the user's info from the Worldcoin API

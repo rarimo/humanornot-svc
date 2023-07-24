@@ -45,9 +45,11 @@ func NewKYCService(cfg config.Config, ctx context.Context) (KYCService, error) {
 		return nil, errors.Wrap(err, "failed to create Civic identity provider")
 	}
 
+	isr := issuer.New(cfg.Log(), cfg.Issuer())
+
 	return &kycService{
 		db:            pg.NewMasterQ(cfg.DB()),
-		issuer:        issuer.New(cfg.Log(), cfg.Issuer()),
+		issuer:        isr,
 		nonceLifetime: cfg.KYCService().NonceLifeTime,
 		identityProviders: map[providers.IdentityProviderName]providers.IdentityProvider{
 			providers.UnstoppableDomainsIdentityProvider: unstopdom.NewIdentityProvider(
@@ -62,7 +64,7 @@ func NewKYCService(cfg config.Config, ctx context.Context) (KYCService, error) {
 				cfg.Log().WithField("provider", providers.GitCoinPassportIdentityProvider),
 				cfg.GitcoinPassportSettings(),
 				pg.NewMasterQ(cfg.DB()),
-				ctx,
+				ctx, isr,
 			),
 			providers.CivicIdentityProvider: civicIdentityProvider,
 		},

@@ -26,6 +26,7 @@ type GitcoinPassport struct {
 	cli          *req.Client
 	logger       *logan.Entry
 	settings     *config.GitcoinPassportSettings
+	issuer       issuer.Issuer
 	masterQ      data.MasterQ
 	scoreReqChan chan data.User
 }
@@ -36,6 +37,7 @@ func NewIdentityProvider(
 	settings *config.GitcoinPassportSettings,
 	masterQ data.MasterQ,
 	ctx context.Context,
+	issuer issuer.Issuer,
 ) *GitcoinPassport {
 	if settings.BaseURL == "" {
 		logger.Debugf("Base URL for Gitcoin Passport not found, the default %s is set", defaultBaseURL)
@@ -52,6 +54,8 @@ func NewIdentityProvider(
 		settings:     settings,
 		masterQ:      masterQ,
 		scoreReqChan: make(chan data.User),
+		issuer:       issuer,
+		logger:       logger,
 	}
 
 	go instance.watchNewCheckScoreRequest(ctx)
@@ -82,29 +86,47 @@ func (g *GitcoinPassport) Verify(
 		return nil, nil, errors.Wrap(err, "failed to submit user's passport")
 	}
 
-	rawData, err := json.Marshal(response.ProviderData)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to marshal provider data")
-	}
-
 	user.Status = data.UserStatusPending
 	user.EthAddress = &userAddr
 
+	var creds *issuer.IdentityProvidersCredentialSubject
+
 	switch response.Status {
 	case statusDone:
-		if err := g.validateScore(response.Score); err != nil {
+		if err = g.validateScore(response.Score); err != nil {
 			return nil, nil, errors.Wrap(err, "failed to validate score")
 		}
 
-		user.ProviderData = rawData
+		stamps, err := g.retrieveStamps(verifyData.Address)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "failed to retrieve stamps")
+		}
+
+		providerDataRaw, err := json.Marshal(ProviderData{
+			Address: response.Address,
+			Score:   response.Score,
+			Stamps:  stamps,
+		})
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "failed to marshal provider data")
+		}
+
+		user.ProviderData = providerDataRaw
 		user.Status = data.UserStatusVerified
+
+		creds = &issuer.IdentityProvidersCredentialSubject{
+			Provider:             issuer.GitcoinProviderName,
+			Address:              userAddr.String(),
+			GitcoinPassportScore: response.Score,
+			KYCAdditionalData:    string(providerDataRaw),
+		}
 	case statusProcessing:
 		g.scoreReqChan <- *user
 	default:
 		return nil, nil, errors.Wrapf(ErrUnexpectedStatus, response.Status)
 	}
 
-	return nil, cryptoPkg.Keccak256(
+	return creds, cryptoPkg.Keccak256(
 		userAddr.Bytes(),
 		providers.GitCoinPassportIdentityProvider.Bytes(),
 	), nil
@@ -147,8 +169,26 @@ func (g *GitcoinPassport) watchNewCheckScoreRequest(ctx context.Context) {
 			return
 		case user := <-g.scoreReqChan:
 			go func(user data.User) {
-				if err := g.processNewCheckScoreRequest(user); err != nil {
+				score, err := g.processNewCheckScoreRequest(user)
+				if err != nil {
 					g.logger.WithError(err).Error("failed to process new check score request")
+				}
+
+				if user.Status != data.UserStatusVerified {
+					return
+				}
+
+				if _, err := g.issuer.IssueClaim(
+					user.IdentityID.ID,
+					issuer.ClaimTypeIdentityProviders,
+					issuer.IdentityProvidersCredentialSubject{
+						Provider:             issuer.GitcoinProviderName,
+						Address:              user.EthAddress.String(),
+						GitcoinPassportScore: score,
+						KYCAdditionalData:    string(user.ProviderData),
+					},
+				); err != nil {
+					g.logger.WithError(err).Error("failed to issue claim")
 				}
 			}(user)
 		}
@@ -156,7 +196,7 @@ func (g *GitcoinPassport) watchNewCheckScoreRequest(ctx context.Context) {
 }
 
 // processNewCheckScoreRequest processes new request to check user's score
-func (g *GitcoinPassport) processNewCheckScoreRequest(user data.User) error {
+func (g *GitcoinPassport) processNewCheckScoreRequest(user data.User) (string, error) {
 	userAddr := user.EthAddress.String()
 
 	// wait for some time before checking user's score.
@@ -166,7 +206,7 @@ func (g *GitcoinPassport) processNewCheckScoreRequest(user data.User) error {
 	for i := 0; i < g.settings.GetScoreMaxRetries; i++ {
 		score, processed, err := g.getUserScore(userAddr)
 		if err != nil {
-			return errors.Wrap(err, "failed to get user score")
+			return "", errors.Wrap(err, "failed to get user score")
 		}
 
 		if !processed {
@@ -178,20 +218,50 @@ func (g *GitcoinPassport) processNewCheckScoreRequest(user data.User) error {
 			user.Status = data.UserStatusUnverified
 		}
 
+		stamps, err := g.retrieveStamps(userAddr)
+		if err != nil {
+			return "", errors.Wrap(err, "failed to retrieve stamps")
+		}
+
 		providerDataRaw, err := json.Marshal(ProviderData{
 			Address: userAddr,
 			Score:   score,
+			Stamps:  stamps,
 		})
 		if err != nil {
-			return errors.Wrap(err, "failed to marshal provider data")
+			return "", errors.Wrap(err, "failed to marshal provider data")
 		}
 
 		user.ProviderData = providerDataRaw
-		return errors.Wrap(g.masterQ.UsersQ().Update(&user), "failed to update user")
+		return score, errors.Wrap(g.masterQ.UsersQ().Update(&user), "failed to update user")
 	}
 
 	user.Status = data.UserStatusUnverified
-	return errors.Wrap(g.masterQ.UsersQ().Update(&user), "failed to update user")
+	return "", errors.Wrap(g.masterQ.UsersQ().Update(&user), "failed to update user")
+}
+
+// retrieveStamps retrieves user's stamps from the provider
+func (g *GitcoinPassport) retrieveStamps(address string) ([]Stamp, error) {
+	var resp GetStampsResponse
+
+	response, err := g.cli.R().
+		SetHeader("X-API-KEY", g.settings.APIkey).
+		SetSuccessResult(&resp).
+		Get(getStampsEndpoint(address))
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to send request")
+	}
+
+	if response.StatusCode >= http.StatusBadRequest {
+		if response.StatusCode == http.StatusUnauthorized {
+			return nil, providers.ErrInvalidAccessToken
+		}
+
+		return nil, errors.Wrapf(ErrUnexpectedStatusCode, response.String())
+	}
+
+	return resp.Items, nil
 }
 
 // getUserScore returns user's score and whether it's processed or not from Gitcoin Passport
