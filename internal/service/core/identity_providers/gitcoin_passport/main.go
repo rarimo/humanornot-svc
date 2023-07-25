@@ -182,6 +182,7 @@ func (g *GitcoinPassport) watchNewCheckScoreRequest(ctx context.Context) {
 					user.IdentityID.ID,
 					issuer.ClaimTypeIdentityProviders,
 					issuer.IdentityProvidersCredentialSubject{
+						IsNatural:            true,
 						Provider:             issuer.GitcoinProviderName,
 						Address:              user.EthAddress.String(),
 						GitcoinPassportScore: score,

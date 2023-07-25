@@ -38,8 +38,7 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 			return errors.Wrap(err, "failed to upsert user into db")
 		}
 
-		// "1" == true
-		credentialSubject.IsNatural = "1"
+		credentialSubject.IsNatural = true
 		if newUser.Status == data.UserStatusVerified {
 			_, err := k.issuer.IssueClaim(
 				newUser.IdentityID.ID,

@@ -48,7 +48,7 @@ type IsNaturalPersonCredentialSubject struct {
 
 type IdentityProvidersCredentialSubject struct {
 	Provider                 IdentityProviderName `json:"provider"`
-	IsNatural                string               `json:"is_natural"`
+	IsNatural                bool                 `json:"is_natural"`
 	Address                  string               `json:"address"`
 	GitcoinPassportScore     string               `json:"gitcoin_passport_score"`
 	WorldCoinScore           string               `json:"worldcoin_score"`
