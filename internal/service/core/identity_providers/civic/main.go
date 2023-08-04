@@ -19,10 +19,11 @@ import (
 )
 
 type Civic struct {
-	log                 *logan.Entry
-	masterQ             data.MasterQ
-	GatekeeperNetworkId *big.Int
-	ContractsVerifiers  map[ChainName]*contracts.GatewayVerifier
+	log                           *logan.Entry
+	masterQ                       data.MasterQ
+	CaptchaGatekeeperNetworkId    *big.Int
+	UniquenessGatekeeperNetworkId *big.Int
+	ContractsVerifiers            map[ChainName]*contracts.GatewayVerifier
 
 	skipSigCheck bool
 }
@@ -34,11 +35,12 @@ func NewIdentityProvider(log *logan.Entry, masterQ data.MasterQ, config *config.
 	}
 
 	return &Civic{
-		log:                 log,
-		masterQ:             masterQ,
-		GatekeeperNetworkId: config.GatekeeperNetworkId,
-		ContractsVerifiers:  contractsVerifiers,
-		skipSigCheck:        config.SkipSigCheck,
+		log:                           log,
+		masterQ:                       masterQ,
+		CaptchaGatekeeperNetworkId:    config.CaptchaGatekeeperNetworkId,
+		UniquenessGatekeeperNetworkId: config.UniquenessGatekeeperNetworkId,
+		ContractsVerifiers:            contractsVerifiers,
+		skipSigCheck:                  config.SkipSigCheck,
 	}, nil
 }
 
@@ -58,7 +60,8 @@ func (c *Civic) Verify(
 		return nil, nil, errors.Wrap(err, "failed to verify signature")
 	}
 
-	if err := c.verifyGatewayToken(chainNameFromString[verifyData.ChainName], verifyData.Address); err != nil {
+	token, err := c.verifyGatewayToken(chainNameFromString[verifyData.ChainName], verifyData.Address)
+	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to verify gateway token")
 	}
 
@@ -76,7 +79,7 @@ func (c *Civic) Verify(
 	return &issuer.IdentityProvidersCredentialSubject{
 			Provider:                 issuer.CivicProviderName,
 			Address:                  verifyData.Address.String(),
-			CivicGatekeeperNetworkID: c.GatekeeperNetworkId.String(),
+			CivicGatekeeperNetworkID: token.String(),
 		}, cryptoPkg.Keccak256(
 			verifyData.Address.Bytes(),
 			providers.CivicIdentityProvider.Bytes(),
@@ -115,21 +118,29 @@ func (c *Civic) verifySignature(verifyData VerificationData, userAddress common.
 	return nil
 }
 
-func (c *Civic) verifyGatewayToken(chainName ChainName, userAddress common.Address) error {
+func (c *Civic) verifyGatewayToken(chainName ChainName, userAddress common.Address) (*big.Int, error) {
 	verifier, ok := c.ContractsVerifiers[chainName]
 	if !ok {
-		return ErrVerifierNotFound
+		return nil, ErrVerifierNotFound
 	}
 
-	valid, err := verifier.VerifyToken(nil, userAddress, c.GatekeeperNetworkId)
+	validCaptcha, err := verifier.VerifyToken(nil, userAddress, c.CaptchaGatekeeperNetworkId)
 	if err != nil {
-		return errors.Wrap(err, "failed to verify gateway token on chain")
+		return nil, errors.Wrap(err, "failed to verify gateway token on chain")
 	}
-	if !valid {
-		return ErrInvalidGatewayToken
+	if validCaptcha {
+		return c.CaptchaGatekeeperNetworkId, nil
 	}
 
-	return nil
+	validUniqueness, err := verifier.VerifyToken(nil, userAddress, c.UniquenessGatekeeperNetworkId)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to verify gateway token on chain")
+	}
+	if validUniqueness {
+		return c.UniquenessGatekeeperNetworkId, nil
+	}
+
+	return nil, ErrInvalidGatewayToken
 }
 
 func newContractsVerifiers(config *config.Civic) (map[ChainName]*contracts.GatewayVerifier, error) {

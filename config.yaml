@@ -14,7 +14,8 @@ issuer:
 civic:
   # ID of the gatekeeperNetwork on gateway contract. You can find info about it in Civic doc.
   # Use this one id for the Uniqueness check. aka gatekeeper_network_slot_id
-  gatekeeper_network_id: 10
+  captcha_gatekeeper_network_id: 4
+  uniqueness_gatekeeper_network_id: 10
   # The contract address is the same for every chain
   gateway_token_contract: "0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E"
   eth_rpc_url: "https://..."

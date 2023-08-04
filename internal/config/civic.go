@@ -11,19 +11,24 @@ import (
 )
 
 type Civic struct {
-	GatekeeperNetworkId  *big.Int
-	GatewayTokenContract common.Address
-	EthereumRpc          *ethclient.Client
-	XDCRpc               *ethclient.Client
-	PolygonRpc           *ethclient.Client
-	ArbitrumRpc          *ethclient.Client
-	SkipSigCheck         bool
+	CaptchaGatekeeperNetworkId    *big.Int
+	UniquenessGatekeeperNetworkId *big.Int
+	GatewayTokenContract          common.Address
+	EthereumRpc                   *ethclient.Client
+	XDCRpc                        *ethclient.Client
+	PolygonRpc                    *ethclient.Client
+	ArbitrumRpc                   *ethclient.Client
+	SkipSigCheck                  bool
 }
 
 type civic struct {
-	// GatekeeperNetworkId ID of the gatekeeperNetwork on gateway contract. You can find info about it in Civic doc.
+	// GatekeeperNetworkId ID of the gatekeeperNetwork on gateway contract.
+	//You can find info about it in Civic doc.
 	// aka gatekeeper_network_slot_id / network (uint256) on chain
-	GatekeeperNetworkId *big.Int `fig:"gatekeeper_network_id"`
+
+	CaptchaGatekeeperNetworkId    *big.Int `fig:"captcha_gatekeeper_network_id"`
+	UniquenessGatekeeperNetworkId *big.Int `fig:"uniqueness_gatekeeper_network_id"`
+
 	// GatewayTokenContract 0xF65b6396dF6B7e2D8a6270E3AB6c7BB08BAEF22E
 	GatewayTokenContract string `fig:"gateway_token_contract,required"`
 	EthRpcURL            string `fig:"eth_rpc_url,required"`
@@ -74,12 +79,13 @@ func parseCivicConfig(cfg *civic) *Civic {
 	}
 
 	return &Civic{
-		GatekeeperNetworkId:  cfg.GatekeeperNetworkId,
-		GatewayTokenContract: common.HexToAddress(cfg.GatewayTokenContract),
-		EthereumRpc:          ethClient,
-		XDCRpc:               xdcClient,
-		PolygonRpc:           polygonClient,
-		ArbitrumRpc:          arbitrumClient,
-		SkipSigCheck:         cfg.SkipSigCheck,
+		CaptchaGatekeeperNetworkId:    cfg.CaptchaGatekeeperNetworkId,
+		UniquenessGatekeeperNetworkId: cfg.UniquenessGatekeeperNetworkId,
+		GatewayTokenContract:          common.HexToAddress(cfg.GatewayTokenContract),
+		EthereumRpc:                   ethClient,
+		XDCRpc:                        xdcClient,
+		PolygonRpc:                    polygonClient,
+		ArbitrumRpc:                   arbitrumClient,
+		SkipSigCheck:                  cfg.SkipSigCheck,
 	}
 }
