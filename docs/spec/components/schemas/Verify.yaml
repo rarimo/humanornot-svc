@@ -1,0 +1,28 @@
+allOf:
+  - $ref: '#/components/schemas/VerifyKey'
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - identity_id
+          - provider_data
+        properties:
+          identity_id:
+            type: string
+            format: string
+            description: Iden3 identity's id
+            example: tPA7FJvNogWckaYAhE4y3dKbGeuGjQPbHs7puXqa2
+          provider_data:
+            format: json.RawMessage
+            oneOf:
+              - $ref: '#/components/schemas/UnstoppableDomainsData'
+              - $ref: '#/components/schemas/WorldcoinData'
+              - $ref: '#/components/schemas/GitcoinPassportData'
+              - $ref: '#/components/schemas/CivicData'
+            example:
+              access_token: >-
+                2EvuL-M58tyOaTIooYv1TKM8_z-8ziVo0DHUHNLeA8k.mfCF1rQdZ9om3JaNuUcHeHkjg67Wvt3nj8as6KYSQhc

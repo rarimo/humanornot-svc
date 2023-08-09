@@ -1,0 +1,38 @@
+post:
+  tags:
+    - User Address Authentication
+  summary: Get Authentication Nonce Message
+  description: >-
+    Request a new nonce message here, sign it with metamask
+
+    Nonce message is issued per-address and expires quickly
+
+    Requesting a new nonce message overwrites the previous one and invalidates
+    it
+  operationId: nonce
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              type: object
+              $ref: '#/components/schemas/Nonce'
+  responses:
+    '200':
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                $ref: '#/components/schemas/NewNonce'
+    '400':
+      description: Bad request
+    '500':
+      description: Internal error

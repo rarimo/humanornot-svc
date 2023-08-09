@@ -1,0 +1,12 @@
+type: object
+required:
+  - type
+  - id
+properties:
+  type:
+    type: string
+    enum:
+      - verification_id
+  id:
+    type: string
+    format: string

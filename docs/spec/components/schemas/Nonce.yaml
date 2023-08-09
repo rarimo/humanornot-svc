@@ -1,0 +1,17 @@
+allOf:
+  - $ref: '#/components/schemas/NonceKey'
+  - type: object
+    x-go-is-request: true
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - address
+        properties:
+          address:
+            type: string
+            format: string
+            example: '0xb4a8bD857146d664961907E0Bba35da59c950390'
+            description: Account Address from MetaMask

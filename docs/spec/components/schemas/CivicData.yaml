@@ -1,0 +1,30 @@
+type: object
+description: Civic provider's data
+required:
+  - chain_name
+  - address
+  - signature
+properties:
+  chain_name:
+    type: string
+    format: string
+    description: One of the available chain's name
+    example: polygon
+    enum:
+      - polygon
+      - ethereum
+      - xdc
+      - arbitrum
+  address:
+    type: string
+    format: string
+    description: The user's address
+    example: '0x1234567890123456789012345678901234567890'
+  signature:
+    type: string
+    format: string
+    description: >-
+      The signature of the requested nonce to validate if the user owns the
+      address
+    example: >-
+      0x1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890

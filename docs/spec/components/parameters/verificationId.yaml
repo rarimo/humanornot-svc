@@ -1,0 +1,8 @@
+name: verification-id
+in: path
+description: The verification identifier of the account
+required: true
+example: dc9076e9-2fda-4019-bd2c-900a8284b9c4
+schema:
+  type: string
+  format: string

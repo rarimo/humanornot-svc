@@ -1,0 +1,13 @@
+type: object
+description: Unstoppable domain provider's data
+required:
+  - access_token
+properties:
+  access_token:
+    type: string
+    format: string
+    description: >-
+      The API access token provides the ability to retrieve the user's metadata.
+      You can receive it by using AuthWithPopUp of Unstoppable Domain API.
+    example: >-
+      2EvuL-M58tyOaTIooYv1TKM8_z-8ziVo0DHUHNLeA8k.mfCF1rQdZ9om3JaNuUcHeHkjg67Wvt3nj8as6KYSQhc
