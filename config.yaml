@@ -10,6 +10,10 @@ listener:
 
 issuer:
   base_url: "http://issuer"
+  auth_username: ""
+  auth_password: ""
+  schema_type: ""
+  schema_url: ""
 
 civic:
   # ID of the gatekeeperNetwork on gateway contract. You can find info about it in Civic doc.

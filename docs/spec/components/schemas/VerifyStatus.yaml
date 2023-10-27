@@ -9,6 +9,7 @@ allOf:
         type: object
         required:
           - status
+          - claim_id
         properties:
           status:
             type: string
@@ -18,3 +19,6 @@ allOf:
               - pending
             example: verified
             description: Verification status of the account.
+          claim_id:
+            type: string
+            description: KYC claim ID.

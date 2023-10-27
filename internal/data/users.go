@@ -40,7 +40,8 @@ type User struct {
 	ProviderData []byte `db:"provider_data" structs:"provider_data"`
 
 	// ProviderHash is used for data uniqueness check.
-	ProviderHash []byte `db:"provider_hash" structs:"provider_hash"`
+	ProviderHash []byte    `db:"provider_hash" structs:"provider_hash"`
+	ClaimID      uuid.UUID `db:"claim_id" structs:"claim_id"`
 }
 
 type UserStatus string

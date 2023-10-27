@@ -7,7 +7,11 @@ import (
 )
 
 type Issuer struct {
-	BaseURL string `fig:"base_url"`
+	BaseURL      string `fig:"base_url"`
+	AuthUsername string `fig:"auth_username"`
+	AuthPassword string `fig:"auth_password"`
+	SchemaType   string `fig:"schema_type"`
+	SchemaURL    string `fig:"schema_url"`
 }
 
 func (c *config) Issuer() *Issuer {

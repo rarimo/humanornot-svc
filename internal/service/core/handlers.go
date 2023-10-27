@@ -1,9 +1,11 @@
 package core
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
+	core "github.com/iden3/go-iden3-core"
 	"github.com/pkg/errors"
 
 	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
@@ -39,15 +41,42 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 		}
 
 		// "1" == true
-		credentialSubject.IsNatural = "1"
+		credentialSubject.IsNatural = 1
 		if newUser.Status == data.UserStatusVerified {
-			_, err := k.issuer.IssueClaim(
+			userDID, err := core.ParseDIDFromID(req.IdentityID)
+			if err != nil {
+				return errors.Wrap(err, "failed to parse DID from ID")
+			}
+			credentialSubject.IdentityID = userDID.String()
+
+			sigProof := true
+
+			credentialReq := issuer.CreateCredentialRequest{
+				CredentialSchema:  k.issuer.SchemaURL(),
+				CredentialSubject: credentialSubject,
+				Type:              k.issuer.SchemaType(),
+				SignatureProof:    &sigProof,
+				MtProof:           &sigProof,
+			}
+
+			resp, err := k.issuer.IssueClaim(
 				newUser.IdentityID.ID,
 				issuer.ClaimTypeIdentityProviders,
-				credentialSubject,
+				credentialReq,
 			)
 			if err != nil {
 				return errors.Wrap(err, "failed to issue claim")
+			}
+
+			claimID, err := uuid.Parse(resp.Data.ID)
+			if err != nil {
+				return errors.Wrap(err, "failed to parse UUID")
+			}
+
+			newUser.ClaimID = claimID
+
+			if err := k.db.UsersQ().Update(&newUser); err != nil {
+				return errors.Wrap(err, fmt.Sprintf("failed to update user %s", newUser.ID.String()))
 			}
 		}
 

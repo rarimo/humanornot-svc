@@ -13,7 +13,8 @@ func NewVerifyStatus(user *data.User) resources.VerifyStatusRequest {
 				Type: resources.VERIFICATION_ID,
 			},
 			Attributes: resources.VerifyStatusAttributes{
-				Status: user.Status.String(),
+				Status:  user.Status.String(),
+				ClaimId: user.ClaimID.String(),
 			},
 		},
 	}
