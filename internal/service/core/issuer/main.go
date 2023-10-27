@@ -2,14 +2,14 @@ package issuer
 
 import (
 	"encoding/json"
+	"io/ioutil"
+
+	"gitlab.com/rarimo/identity/kyc-service/internal/config"
 
 	iden3core "github.com/iden3/go-iden3-core"
 	"github.com/imroc/req/v3"
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
-	"gitlab.com/rarimo/identity/issuer/resources"
-
-	"gitlab.com/rarimo/identity/kyc-service/internal/config"
 )
 
 type Issuer interface {
@@ -18,17 +18,27 @@ type Issuer interface {
 		claimType ClaimType,
 		credentialSubject interface{},
 	) (*IssueClaimResponse, error)
+	SchemaType() string
+	SchemaURL() string
 }
 
 type issuer struct {
-	*req.Client
+	client       *req.Client
+	authUsername string
+	authPassword string
+	schemaType   string
+	schemaURL    string
 }
 
 func New(log *logan.Entry, config *config.Issuer) Issuer {
 	return &issuer{
-		Client: req.C().
+		client: req.C().
 			SetBaseURL(config.BaseURL).
 			SetLogger(log),
+		schemaType:   config.SchemaType,
+		schemaURL:    config.SchemaURL,
+		authUsername: config.AuthUsername,
+		authPassword: config.AuthPassword,
 	}
 }
 
@@ -37,20 +47,12 @@ func (is *issuer) IssueClaim(
 	claimType ClaimType,
 	credentialsSubject interface{},
 ) (*IssueClaimResponse, error) {
-	var result IssueClaimResponse
+	var result UUIDResponse
 
-	requestBody, err := compactIssueClaimBody(credentialsSubject)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to compact issue claim request body")
-	}
-
-	response, err := is.R().
-		SetBodyJsonMarshal(requestBody).
+	response, err := is.client.R().
+		SetBasicAuth(is.authUsername, is.authPassword).
+		SetBodyJsonMarshal(credentialsSubject).
 		SetSuccessResult(result).
-		SetPathParams(map[string]string{
-			identityIDPathParam: identityID.String(),
-			claimTypePathParam:  claimType.String(),
-		}).
 		Post(issueEndpoint)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to send post request")
@@ -60,23 +62,25 @@ func (is *issuer) IssueClaim(
 		return nil, errors.Wrapf(ErrUnexpectedStatusCode, response.String())
 	}
 
-	return &result, nil
-}
-
-func compactIssueClaimBody(credentialSubject interface{}) (interface{}, error) {
-	credentialsSubjectRaw, err := json.Marshal(credentialSubject)
+	defer response.Body.Close()
+	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal credentials subject")
+		return nil, errors.Wrap(err, "failed to read response body")
 	}
 
-	return &resources.IssueClaimRequest{
-		Data: resources.IssueClaim{
-			Key: resources.Key{
-				Type: resources.CLAIM_ISSUE,
-			},
-			Attributes: resources.IssueClaimAttributes{
-				CredentialSubject: credentialsSubjectRaw,
-			},
-		},
-	}, nil
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal json")
+	}
+
+	resp := result.IssueClaimResponse()
+	return &resp, nil
+}
+
+func (is *issuer) SchemaType() string {
+	return is.schemaType
+}
+
+func (is *issuer) SchemaURL() string {
+	return is.schemaURL
 }

@@ -10,6 +10,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	cryptoPkg "github.com/ethereum/go-ethereum/crypto"
+	"github.com/google/uuid"
+	core "github.com/iden3/go-iden3-core"
 	"github.com/imroc/req/v3"
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -89,7 +91,7 @@ func (g *GitcoinPassport) Verify(
 	user.Status = data.UserStatusPending
 	user.EthAddress = &userAddr
 
-	var creds *issuer.IdentityProvidersCredentialSubject
+	credentialSubject := issuer.NewEmptyIdentityProvidersCredentialSubject()
 
 	switch response.Status {
 	case statusDone:
@@ -114,19 +116,18 @@ func (g *GitcoinPassport) Verify(
 		user.ProviderData = providerDataRaw
 		user.Status = data.UserStatusVerified
 
-		creds = &issuer.IdentityProvidersCredentialSubject{
-			Provider:             issuer.GitcoinProviderName,
-			Address:              userAddr.String(),
-			GitcoinPassportScore: response.Score,
-			KYCAdditionalData:    string(providerDataRaw),
-		}
+		credentialSubject.Provider = issuer.GitcoinProviderName
+		credentialSubject.Address = userAddr.String()
+		credentialSubject.GitcoinPassportScore = response.Score
+		credentialSubject.KYCAdditionalData = string(providerDataRaw)
+
 	case statusProcessing:
 		g.scoreReqChan <- *user
 	default:
 		return nil, nil, errors.Wrapf(ErrUnexpectedStatus, response.Status)
 	}
 
-	return creds, cryptoPkg.Keccak256(
+	return credentialSubject, cryptoPkg.Keccak256(
 		userAddr.Bytes(),
 		providers.GitCoinPassportIdentityProvider.Bytes(),
 	), nil
@@ -178,19 +179,47 @@ func (g *GitcoinPassport) watchNewCheckScoreRequest(ctx context.Context) {
 					return
 				}
 
-				if _, err := g.issuer.IssueClaim(
+				userDID, err := core.ParseDIDFromID(user.IdentityID.ID)
+				if err != nil {
+					g.logger.WithError(err).Error("failed to parse DID from ID")
+				}
+
+				credentialSubject := issuer.NewEmptyIdentityProvidersCredentialSubject()
+				credentialSubject.IdentityID = userDID.String()
+				credentialSubject.IsNatural = 1
+				credentialSubject.Provider = issuer.GitcoinProviderName
+				credentialSubject.Address = user.EthAddress.String()
+				credentialSubject.GitcoinPassportScore = score
+				credentialSubject.KYCAdditionalData = string(user.ProviderData)
+
+				sigProof := true
+
+				credentialReq := issuer.CreateCredentialRequest{
+					CredentialSchema:  g.issuer.SchemaURL(),
+					CredentialSubject: credentialSubject,
+					Type:              g.issuer.SchemaType(),
+					SignatureProof:    &sigProof,
+					MtProof:           &sigProof,
+				}
+
+				resp, err := g.issuer.IssueClaim(
 					user.IdentityID.ID,
 					issuer.ClaimTypeIdentityProviders,
-					// "1" == true
-					issuer.IdentityProvidersCredentialSubject{
-						IsNatural:            "1",
-						Provider:             issuer.GitcoinProviderName,
-						Address:              user.EthAddress.String(),
-						GitcoinPassportScore: score,
-						KYCAdditionalData:    string(user.ProviderData),
-					},
-				); err != nil {
+					credentialReq,
+				)
+				if err != nil {
 					g.logger.WithError(err).Error("failed to issue claim")
+				}
+
+				claimID, err := uuid.Parse(resp.Data.ID)
+				if err != nil {
+					g.logger.WithError(err).Error("failed to parse UUID")
+				}
+
+				user.ClaimID = claimID
+
+				if err := g.masterQ.New().UsersQ().Update(&user); err != nil {
+					g.logger.WithError(err).Error(fmt.Sprintf("failed to update user %s", user.ID.String()))
 				}
 			}(user)
 		}
