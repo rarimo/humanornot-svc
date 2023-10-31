@@ -21,6 +21,7 @@ shell:
   - export CGO_ENABLED=0
   - export GO111MODULE=on
   - export GOOS=linux
+  - cd /go/src/github.com/rarimo/kyc-service
   - go build -o /usr/local/bin/kyc-service  /go/src/github.com/rarimo/kyc-service
 
 ---
