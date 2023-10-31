@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"gitlab.com/rarimo/identity/kyc-service/internal/config"
+	"github.com/rarimo/kyc-service/internal/config"
 
 	iden3core "github.com/iden3/go-iden3-core"
 	"github.com/imroc/req/v3"

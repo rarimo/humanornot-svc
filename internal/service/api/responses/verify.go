@@ -2,16 +2,17 @@ package responses
 
 import (
 	"fmt"
-	"github.com/google/jsonapi"
-	"github.com/google/uuid"
-	"gitlab.com/rarimo/identity/kyc-service/internal/service/core"
-	providers "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers"
-	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/civic"
-	gcpsp "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
-	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers/worldcoin"
 	"net/http"
 
-	"gitlab.com/rarimo/identity/kyc-service/resources"
+	"github.com/google/jsonapi"
+	"github.com/google/uuid"
+	"github.com/rarimo/kyc-service/internal/service/core"
+	providers "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
+	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/civic"
+	gcpsp "github.com/rarimo/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
+	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/worldcoin"
+
+	"github.com/rarimo/kyc-service/resources"
 )
 
 const (

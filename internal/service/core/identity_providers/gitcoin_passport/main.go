@@ -16,11 +16,11 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
 
-	"gitlab.com/rarimo/identity/kyc-service/internal/config"
-	"gitlab.com/rarimo/identity/kyc-service/internal/crypto"
-	"gitlab.com/rarimo/identity/kyc-service/internal/data"
-	providers "gitlab.com/rarimo/identity/kyc-service/internal/service/core/identity_providers"
-	"gitlab.com/rarimo/identity/kyc-service/internal/service/core/issuer"
+	"github.com/rarimo/kyc-service/internal/config"
+	"github.com/rarimo/kyc-service/internal/crypto"
+	"github.com/rarimo/kyc-service/internal/data"
+	providers "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
+	"github.com/rarimo/kyc-service/internal/service/core/issuer"
 )
 
 // GitcoinPassport is an identity provider

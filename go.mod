@@ -1,4 +1,4 @@
-module gitlab.com/rarimo/identity/kyc-service
+module github.com/rarimo/kyc-service
 
 go 1.19
 

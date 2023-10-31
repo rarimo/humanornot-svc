@@ -2,11 +2,12 @@ package worldcoin
 
 import (
 	"fmt"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
 	"github.com/pkg/errors"
 
-	"gitlab.com/rarimo/identity/kyc-service/resources"
+	"github.com/rarimo/kyc-service/resources"
 )
 
 const (

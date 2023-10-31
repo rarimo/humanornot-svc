@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"gitlab.com/rarimo/identity/kyc-service/internal/service/api/requests"
-	"gitlab.com/rarimo/identity/kyc-service/internal/service/api/responses"
-	"gitlab.com/rarimo/identity/kyc-service/internal/service/core"
+	"github.com/rarimo/kyc-service/internal/service/api/requests"
+	"github.com/rarimo/kyc-service/internal/service/api/responses"
+	"github.com/rarimo/kyc-service/internal/service/core"
 )
 
 var TickerDuration = time.Second
