@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"gitlab.com/rarimo/identity/issuer/resources"
+	"github.com/rarimo/issuer/resources"
 )
 
 var (
