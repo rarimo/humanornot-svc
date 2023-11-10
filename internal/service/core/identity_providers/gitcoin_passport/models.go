@@ -114,5 +114,5 @@ func (v VerificationData) Validate() error {
 }
 
 func getStampsEndpoint(address string) string {
-	return fmt.Sprintf("stamps/%s?include_metadata=true", address)
+	return fmt.Sprintf("stamps/%s?include_metadata=false", address)
 }
