@@ -18,6 +18,7 @@ type Config interface {
 	WorldcoinSettings() *WorldcoinSettings
 	UnstoppableDomains() *UnstoppableDomains
 	GitcoinPassportSettings() *GitcoinPassportSettings
+	Kleros() *Kleros
 	Issuer() *Issuer
 	KYCService() *KYCService
 }

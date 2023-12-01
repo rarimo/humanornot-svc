@@ -40,13 +40,14 @@ const (
 	CivicProviderName              IdentityProviderName = "Civic"
 	GitcoinProviderName            IdentityProviderName = "GitcoinPassport"
 	WorldCoinProviderName          IdentityProviderName = "Worldcoin"
+	KlerosProviderName             IdentityProviderName = "Kleros"
 )
 
 type IsNaturalPersonCredentialSubject struct {
 	IsNatural string `json:"is_natural"`
 }
 
-type IdentityProvidersCredentialSubject struct {
+type IdentityProvidersCredentialSubject struct { // TODO: merge inessential fields into the single metadata field
 	IdentityID               string               `json:"id"`
 	Provider                 IdentityProviderName `json:"provider"`
 	IsNatural                int64                `json:"isNatural"`

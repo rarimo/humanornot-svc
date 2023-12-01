@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	// Interanl errors
+	// Internal errors
 	ErrVerifierNotFound = errors.New("verifier not found")
 
 	// Unauthorized errors
