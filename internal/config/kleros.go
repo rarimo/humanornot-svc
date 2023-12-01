@@ -19,7 +19,7 @@ type kleros struct {
 }
 
 func (c *config) Kleros() *Kleros {
-	return c.civic.Do(func() interface{} {
+	return c.kleros.Do(func() interface{} {
 		cfg := kleros{}
 		err := figure.
 			Out(&cfg).
