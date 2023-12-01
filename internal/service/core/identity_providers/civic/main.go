@@ -79,7 +79,14 @@ func (c *Civic) Verify(
 	credentialSubject := issuer.NewEmptyIdentityProvidersCredentialSubject()
 	credentialSubject.Provider = issuer.CivicProviderName
 	credentialSubject.Address = verifyData.Address.String()
-	credentialSubject.CivicGatekeeperNetworkID = token.Int64()
+
+	marshalled, err := json.Marshal(issuer.IdentityProviderMetadata{
+		CivicGatekeeperNetworkID: token.Int64(),
+	})
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to marshal")
+	}
+	credentialSubject.ProviderMetadata = string(marshalled)
 
 	return credentialSubject, cryptoPkg.Keccak256(
 		verifyData.Address.Bytes(),

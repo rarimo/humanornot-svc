@@ -47,29 +47,37 @@ type IsNaturalPersonCredentialSubject struct {
 	IsNatural string `json:"is_natural"`
 }
 
-type IdentityProvidersCredentialSubject struct { // TODO: merge inessential fields into the single metadata field
-	IdentityID               string               `json:"id"`
-	Provider                 IdentityProviderName `json:"provider"`
-	IsNatural                int64                `json:"isNatural"`
-	Address                  string               `json:"address"`
-	GitcoinPassportScore     string               `json:"gitcoinPassportScore"`
-	WorldCoinScore           string               `json:"worldcoinScore"`
-	UnstoppableDomain        string               `json:"unstoppableDomain"`
-	CivicGatekeeperNetworkID int64                `json:"civicGatekeeperNetworkId"`
-	KYCAdditionalData        string               `json:"kycAdditionalData"`
+type IdentityProvidersCredentialSubject struct {
+	IdentityID       string               `json:"id"`
+	Provider         IdentityProviderName `json:"provider"`
+	IsNatural        int64                `json:"isNatural"`
+	Address          string               `json:"address"`
+	ProviderMetadata string               `json:"providerMetadata"`
+}
+
+type IdentityProviderMetadata struct {
+	GitcoinPassportData      GitcoinPassportData `json:"gitcoinPassportData,omitempty"`
+	WorldCoinData            WorldCoinData       `json:"worldcoinData,omitempty"`
+	UnstoppableDomain        string              `json:"unstoppableDomain,omitempty"`
+	CivicGatekeeperNetworkID int64               `json:"civicGatekeeperNetworkId,omitempty"`
+}
+
+type GitcoinPassportData struct {
+	Score          string `json:"score"`
+	AdditionalData string `json:"additionalData"`
+}
+
+type WorldCoinData struct {
+	Score          string `json:"score"`
+	AdditionalData string `json:"additionalData"`
 }
 
 func NewEmptyIdentityProvidersCredentialSubject() *IdentityProvidersCredentialSubject {
 	return &IdentityProvidersCredentialSubject{
-		IdentityID:               EmptyStringField,
-		Provider:                 EmptyStringField,
-		IsNatural:                EmptyIntegerField,
-		Address:                  EmptyStringField,
-		GitcoinPassportScore:     EmptyStringField,
-		WorldCoinScore:           EmptyStringField,
-		UnstoppableDomain:        EmptyStringField,
-		CivicGatekeeperNetworkID: EmptyIntegerField,
-		KYCAdditionalData:        EmptyStringField,
+		IdentityID: EmptyStringField,
+		Provider:   EmptyStringField,
+		IsNatural:  EmptyIntegerField,
+		Address:    EmptyStringField,
 	}
 }
 

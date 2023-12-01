@@ -64,8 +64,17 @@ func (w *Worldcoin) Verify(
 
 	credentialSubject := issuer.NewEmptyIdentityProvidersCredentialSubject()
 	credentialSubject.Provider = issuer.WorldCoinProviderName
-	credentialSubject.WorldCoinScore = likelyHumanStrong
-	credentialSubject.KYCAdditionalData = string(userInfoRaw)
+
+	marshalled, err := json.Marshal(issuer.IdentityProviderMetadata{
+		WorldCoinData: issuer.WorldCoinData{
+			Score:          likelyHumanStrong,
+			AdditionalData: string(userInfoRaw),
+		},
+	})
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to marshal")
+	}
+	credentialSubject.ProviderMetadata = string(marshalled)
 
 	return credentialSubject, crypto.Keccak256(
 		[]byte(userInfo.Sub),
