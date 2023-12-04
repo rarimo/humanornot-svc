@@ -74,6 +74,7 @@ func (k *Kleros) Verify(
 	credentialSubject := issuer.NewEmptyIdentityProvidersCredentialSubject()
 	credentialSubject.Provider = issuer.KlerosProviderName
 	credentialSubject.Address = userAddr.String()
+	credentialSubject.ProviderMetadata = "none"
 
 	return credentialSubject, cryptoPkg.Keccak256(
 		userAddr.Bytes(),
