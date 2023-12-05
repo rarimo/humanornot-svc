@@ -42,6 +42,10 @@ gitcoin_passport:
   get_score_max_retries: 3
   skip_sig_check: false
 
+kleros:
+  eth_rpc_url:
+  proof_of_humanity_contract:
+
 kyc_service:
   nonce_life_time: 30m
 
