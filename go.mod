@@ -12,7 +12,7 @@ require (
 	github.com/google/jsonapi v1.0.0
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/iden3/go-iden3-core v1.0.2
+	github.com/iden3/go-iden3-core/v2 v2.0.2
 	github.com/imroc/req/v3 v3.37.1
 	github.com/pkg/errors v0.9.1
 	github.com/rarimo/issuer v0.1.0

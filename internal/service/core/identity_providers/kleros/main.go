@@ -17,7 +17,7 @@ import (
 	"github.com/rarimo/kyc-service/internal/service/core/issuer"
 )
 
-type Kleros struct { // TODO?
+type Kleros struct {
 	logger                  *logan.Entry
 	masterQ                 data.MasterQ
 	proofOfHumanityContract *contracts.ProofOfHumanity

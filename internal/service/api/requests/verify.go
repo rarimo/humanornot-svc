@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-chi/chi"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	iden3core "github.com/iden3/go-iden3-core"
+	iden3core "github.com/iden3/go-iden3-core/v2"
 	"github.com/pkg/errors"
 
 	providers "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
