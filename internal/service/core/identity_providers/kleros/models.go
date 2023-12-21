@@ -3,9 +3,13 @@ package kleros
 import (
 	"github.com/ethereum/go-ethereum/common"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/pkg/errors"
+
 	"github.com/rarimo/kyc-service/internal/service/api/requests"
 	"github.com/rarimo/kyc-service/resources"
 )
+
+var ErrIsNotRegistered = errors.New("user is not registered")
 
 type (
 	// VerificationData is a data that is required by Kleros to verify a user
