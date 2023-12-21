@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/kleros"
 	"time"
 
 	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/civic"
@@ -45,6 +46,15 @@ func NewKYCService(cfg config.Config, ctx context.Context) (KYCService, error) {
 		return nil, errors.Wrap(err, "failed to create Civic identity provider")
 	}
 
+	klerosIdentityProvider, err := kleros.NewIdentityProvider(
+		cfg.Log().WithField("provider", providers.KlerosIdentityProvider),
+		pg.NewMasterQ(cfg.DB()),
+		cfg.Kleros(),
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create Kleros identity provider")
+	}
+
 	isr := issuer.New(cfg.Log(), cfg.Issuer())
 
 	return &kycService{
@@ -66,7 +76,8 @@ func NewKYCService(cfg config.Config, ctx context.Context) (KYCService, error) {
 				pg.NewMasterQ(cfg.DB()),
 				ctx, isr,
 			),
-			providers.CivicIdentityProvider: civicIdentityProvider,
+			providers.CivicIdentityProvider:  civicIdentityProvider,
+			providers.KlerosIdentityProvider: klerosIdentityProvider,
 		},
 	}, nil
 }

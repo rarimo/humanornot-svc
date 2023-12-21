@@ -18,6 +18,7 @@ type Config interface {
 	WorldcoinSettings() *WorldcoinSettings
 	UnstoppableDomains() *UnstoppableDomains
 	GitcoinPassportSettings() *GitcoinPassportSettings
+	Kleros() *Kleros
 	Issuer() *Issuer
 	KYCService() *KYCService
 }
@@ -33,6 +34,7 @@ type config struct {
 	unstoppableDomains      comfig.Once
 	gitcoinPassportSettings comfig.Once
 	worldcoinSettings       comfig.Once
+	kleros                  comfig.Once
 	issuer                  comfig.Once
 	kycService              comfig.Once
 }

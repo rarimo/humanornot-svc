@@ -118,8 +118,17 @@ func (g *GitcoinPassport) Verify(
 
 		credentialSubject.Provider = issuer.GitcoinProviderName
 		credentialSubject.Address = userAddr.String()
-		credentialSubject.GitcoinPassportScore = response.Score
-		credentialSubject.KYCAdditionalData = string(providerDataRaw)
+
+		marshalled, err := json.Marshal(issuer.IdentityProviderMetadata{
+			GitcoinPassportData: issuer.GitcoinPassportData{
+				Score:          response.Score,
+				AdditionalData: string(providerDataRaw),
+			},
+		})
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "failed to marshal")
+		}
+		credentialSubject.ProviderMetadata = string(marshalled)
 
 	case statusProcessing:
 		g.scoreReqChan <- *user
@@ -189,8 +198,17 @@ func (g *GitcoinPassport) watchNewCheckScoreRequest(ctx context.Context) {
 				credentialSubject.IsNatural = 1
 				credentialSubject.Provider = issuer.GitcoinProviderName
 				credentialSubject.Address = user.EthAddress.String()
-				credentialSubject.GitcoinPassportScore = score
-				credentialSubject.KYCAdditionalData = string(user.ProviderData)
+
+				marshalled, err := json.Marshal(issuer.IdentityProviderMetadata{
+					GitcoinPassportData: issuer.GitcoinPassportData{
+						Score:          score,
+						AdditionalData: string(user.ProviderData),
+					},
+				})
+				if err != nil {
+					g.logger.WithError(err).Error("failed to marshal")
+				}
+				credentialSubject.ProviderMetadata = string(marshalled)
 
 				sigProof := true
 

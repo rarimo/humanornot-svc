@@ -27,6 +27,7 @@ const (
 	CivicIdentityProvider              IdentityProviderName = "civic"
 	GitCoinPassportIdentityProvider    IdentityProviderName = "gitcoin_passport"
 	WorldCoinIdentityProvider          IdentityProviderName = "worldcoin"
+	KlerosIdentityProvider             IdentityProviderName = "kleros"
 )
 
 var IdentityProviderNames = map[string]IdentityProviderName{
@@ -34,4 +35,5 @@ var IdentityProviderNames = map[string]IdentityProviderName{
 	CivicIdentityProvider.String():              CivicIdentityProvider,
 	GitCoinPassportIdentityProvider.String():    GitCoinPassportIdentityProvider,
 	WorldCoinIdentityProvider.String():          WorldCoinIdentityProvider,
+	KlerosIdentityProvider.String():             KlerosIdentityProvider,
 }

@@ -10,6 +10,7 @@ import (
 	providers "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
 	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/civic"
 	gcpsp "github.com/rarimo/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
+	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/kleros"
 	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/worldcoin"
 
 	"github.com/rarimo/kyc-service/internal/data"
@@ -69,5 +70,6 @@ func isUnauthorizedError(err error) bool {
 		errors.Is(err, providers.ErrNonceNotFound) ||
 		errors.Is(err, worldcoin.ErrNotLikelyHuman) ||
 		errors.Is(err, gcpsp.ErrScoreIsTooLow) ||
-		errors.Is(err, civic.ErrInvalidGatewayToken)
+		errors.Is(err, civic.ErrInvalidGatewayToken) ||
+		errors.Is(err, kleros.ErrIsNotRegistered)
 }

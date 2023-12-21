@@ -74,7 +74,14 @@ func (u *UnstoppableDomains) Verify(
 	credentialSubject := issuer.NewEmptyIdentityProvidersCredentialSubject()
 	credentialSubject.Provider = issuer.UnstoppableDomainsProviderName
 	credentialSubject.Address = userInfo.WalletAddress
-	credentialSubject.UnstoppableDomain = userInfo.Domain
+
+	marshalled, err := json.Marshal(issuer.IdentityProviderMetadata{
+		UnstoppableDomain: userInfo.Domain,
+	})
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to marshal")
+	}
+	credentialSubject.ProviderMetadata = string(marshalled)
 
 	return credentialSubject, cryptoPkg.Keccak256(
 		[]byte(userInfo.Domain),
