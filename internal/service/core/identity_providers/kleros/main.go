@@ -2,18 +2,18 @@ package kleros
 
 import (
 	"encoding/json"
-	cryptoPkg "github.com/ethereum/go-ethereum/crypto"
-	"github.com/rarimo/kyc-service/internal/config"
-	"github.com/rarimo/kyc-service/internal/crypto"
-	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/kleros/contracts"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	cryptoPkg "github.com/ethereum/go-ethereum/crypto"
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 
+	"github.com/rarimo/kyc-service/internal/config"
+	"github.com/rarimo/kyc-service/internal/crypto"
 	"github.com/rarimo/kyc-service/internal/data"
 	providers "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
+	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/kleros/contracts"
 	"github.com/rarimo/kyc-service/internal/service/core/issuer"
 )
 
@@ -113,7 +113,7 @@ func (k *Kleros) checkIfIsRegistered(userAddress common.Address) error {
 		return errors.Wrap(err, "failed to call isRegistered contract method")
 	}
 	if !isRegistered {
-		return errors.New("user is not registered")
+		return ErrIsNotRegistered
 	}
 	return nil
 }

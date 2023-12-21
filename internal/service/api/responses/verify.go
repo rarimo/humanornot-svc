@@ -10,6 +10,7 @@ import (
 	providers "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
 	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/civic"
 	gcpsp "github.com/rarimo/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
+	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/kleros"
 	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/worldcoin"
 
 	"github.com/rarimo/kyc-service/resources"
@@ -22,6 +23,7 @@ const (
 	NotLikelyHuman
 	ScoreIsTooLow
 	InvalidGatewayToken
+	IsNotRegistered
 )
 
 const (
@@ -37,6 +39,7 @@ var unauthorizedErrorCodes = map[string]int{
 	worldcoin.ErrNotLikelyHuman.Error():        NotLikelyHuman,
 	gcpsp.ErrScoreIsTooLow.Error():             ScoreIsTooLow,
 	civic.ErrInvalidGatewayToken.Error():       InvalidGatewayToken,
+	kleros.ErrIsNotRegistered.Error():          IsNotRegistered,
 }
 
 var conflictErrorCodes = map[string]int{
