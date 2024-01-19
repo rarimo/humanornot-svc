@@ -21,7 +21,7 @@ get:
             type: object
             properties:
               data:
-                $ref: '#/components/schemas/GetProviderByIdentityId'
+                $ref: '#/components/schemas/Provider'
     '400':
       description: Bad request
     '500':

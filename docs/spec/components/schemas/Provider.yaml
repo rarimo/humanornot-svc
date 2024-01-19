@@ -1,5 +1,5 @@
 allOf:
-  - $ref: '#/components/schemas/GetProviderByIdentityIdKey'
+  - $ref: '#/components/schemas/ProviderKey'
   - type: object
     required:
       - attributes
