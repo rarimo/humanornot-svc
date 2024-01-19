@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/google/uuid"
 	core "github.com/iden3/go-iden3-core/v2"
 	"github.com/pkg/errors"
-	identityproviders "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
 	"github.com/rarimo/kyc-service/internal/crypto"
 	"github.com/rarimo/kyc-service/internal/data"
 	"github.com/rarimo/kyc-service/internal/service/api/requests"
+	identityproviders "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
 	"github.com/rarimo/kyc-service/internal/service/core/issuer"
 )
 
@@ -152,11 +153,11 @@ func (k *kycService) GetProviderByIdentityId(req *requests.GetProviderByIdentity
 		return "", errors.Wrap(err, "failed to get user from db with provided identityID")
 	}
 
-	civicHash := crypto.Keccak256(user.EthAddress.Bytes(), identityproviders.CivicIdentityProvider.Bytes())
-	gitcoinPassportHash := crypto.Keccak256(user.EthAddress.Bytes(), identityproviders.GitCoinPassportIdentityProvider.Bytes())
-	klerosHash := cryptoPkg.Keccak256(user.EthAddress.Bytes(), identityproviders.KlerosIdentityProvider.Bytes())
-	unstoppableDomainsHash := crypto.Keccak256(user.EthAddress.Bytes(), identityproviders.UnstoppableDomainsIdentityProvider.Bytes())
-	worldCoinHash := crypto.Keccak256(user.EthAddress.Bytes(), identityproviders.WorldCoinIdentityProvider.Bytes())
+	civicHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.CivicIdentityProvider.Bytes())
+	gitcoinPassportHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.GitCoinPassportIdentityProvider.Bytes())
+	klerosHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.KlerosIdentityProvider.Bytes())
+	unstoppableDomainsHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.UnstoppableDomainsIdentityProvider.Bytes())
+	worldCoinHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.WorldCoinIdentityProvider.Bytes())
 
 	switch string(user.ProviderHash) {
 	case string(civicHash):
