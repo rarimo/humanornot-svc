@@ -2,6 +2,8 @@ package core
 
 import (
 	"fmt"
+	cryptoPkg "github.com/ethereum/go-ethereum/crypto"
+	identityproviders "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
 	"time"
 
 	"github.com/google/uuid"
@@ -144,4 +146,32 @@ func (k *kycService) verifyUser(
 	newUser.ProviderHash = providerHash
 
 	return credSubject, nil
+}
+
+func (k *kycService) GetProviderByIdentityId(req *requests.GetProviderByIdentityIdRequest) (identityproviders.IdentityProviderName, error) {
+	user, err := k.db.UsersQ().WhereIdentityID(data.NewIdentityID(req.IdentityID)).Get()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get user from db with provided identityID")
+	}
+
+	civicHash := cryptoPkg.Keccak256(user.EthAddress.Bytes(), identityproviders.CivicIdentityProvider.Bytes())
+	gitcoinPassportHash := cryptoPkg.Keccak256(user.EthAddress.Bytes(), identityproviders.GitCoinPassportIdentityProvider.Bytes())
+	klerosHash := cryptoPkg.Keccak256(user.EthAddress.Bytes(), identityproviders.KlerosIdentityProvider.Bytes())
+	unstoppableDomainsHash := cryptoPkg.Keccak256(user.EthAddress.Bytes(), identityproviders.UnstoppableDomainsIdentityProvider.Bytes())
+	worldCoinHash := cryptoPkg.Keccak256(user.EthAddress.Bytes(), identityproviders.WorldCoinIdentityProvider.Bytes())
+
+	switch string(user.ProviderHash) {
+	case string(civicHash):
+		return identityproviders.CivicIdentityProvider, nil
+	case string(gitcoinPassportHash):
+		return identityproviders.GitCoinPassportIdentityProvider, nil
+	case string(klerosHash):
+		return identityproviders.KlerosIdentityProvider, nil
+	case string(unstoppableDomainsHash):
+		return identityproviders.UnstoppableDomainsIdentityProvider, nil
+	case string(worldCoinHash):
+		return identityproviders.WorldCoinIdentityProvider, nil
+	default:
+		return "", identityproviders.ErrProviderNotFound
+	}
 }

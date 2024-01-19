@@ -26,6 +26,7 @@ type KYCService interface {
 	NewVerifyRequest(*requests.VerifyRequest) (*data.User, error)
 	NewNonce(*requests.NonceRequest) (*data.Nonce, error)
 	GetVerifyStatus(*requests.VerifyStatusRequest) (*data.User, error)
+	GetProviderByIdentityId(*requests.GetProviderByIdentityIdRequest) (providers.IdentityProviderName, error)
 }
 
 type kycService struct {
