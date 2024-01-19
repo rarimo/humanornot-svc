@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/pkg/errors"
 	"github.com/rarimo/kyc-service/internal/service/api/requests"
 	identityproviders "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
 	"github.com/rarimo/kyc-service/resources"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
-	"net/http"
 )
 
 func GetProviderByIdentityId(w http.ResponseWriter, r *http.Request) {

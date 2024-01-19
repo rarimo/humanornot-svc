@@ -2,14 +2,15 @@ package requests
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/go-chi/chi"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	iden3core "github.com/iden3/go-iden3-core"
-	"net/http"
+	core "github.com/iden3/go-iden3-core/v2"
 )
 
 type GetProviderByIdentityIdRequest struct {
-	IdentityID iden3core.ID
+	IdentityID core.ID
 }
 
 type getProviderByIdentityIdRequest struct {
@@ -38,7 +39,7 @@ func (req *getProviderByIdentityIdRequest) validate() error {
 }
 
 func (req *getProviderByIdentityIdRequest) parse() *GetProviderByIdentityIdRequest {
-	identityID, _ := iden3core.IDFromString(req.IdentityId)
+	identityID, _ := core.IDFromString(req.IdentityId)
 
 	return &GetProviderByIdentityIdRequest{
 		IdentityID: identityID,
