@@ -32,6 +32,10 @@ func GetProviderByIdentityId(w http.ResponseWriter, r *http.Request) {
 
 	response := resources.GetProviderByIdentityIdResponse{
 		Data: resources.GetProviderByIdentityId{
+			Key: resources.Key{
+				ID:   req.IdentityID.String(),
+				Type: resources.PROVIDER,
+			},
 			Attributes: resources.GetProviderByIdentityIdAttributes{
 				Provider: provider.String(),
 			},

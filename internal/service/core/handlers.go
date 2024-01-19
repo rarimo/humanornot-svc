@@ -3,11 +3,11 @@ package core
 import (
 	"fmt"
 	cryptoPkg "github.com/ethereum/go-ethereum/crypto"
+	core "github.com/iden3/go-iden3-core"
 	identityproviders "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
 	"time"
 
 	"github.com/google/uuid"
-	core "github.com/iden3/go-iden3-core"
 	"github.com/pkg/errors"
 
 	"github.com/rarimo/kyc-service/internal/crypto"
