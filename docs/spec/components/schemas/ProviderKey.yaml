@@ -1,0 +1,13 @@
+type: object
+required:
+  - type
+properties:
+  id:
+    type: string
+    format: string
+    example: 'did:iden3:readonly:...'
+    description: User's identity id
+  type:
+    type: string
+    enum:
+      - provider

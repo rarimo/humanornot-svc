@@ -10,6 +10,9 @@ var (
 
 	// Bad request errors
 	ErrInvalidVerificationData = errors.New("verification data is invalid")
+
+	// Not found errors
+	ErrProviderNotFound = errors.New("provider not found")
 )
 
 type IdentityProviderName string

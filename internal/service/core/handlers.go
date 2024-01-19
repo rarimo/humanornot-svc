@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	core "github.com/iden3/go-iden3-core/v2"
 	"github.com/pkg/errors"
-
+	identityproviders "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
 	"github.com/rarimo/kyc-service/internal/crypto"
 	"github.com/rarimo/kyc-service/internal/data"
 	"github.com/rarimo/kyc-service/internal/service/api/requests"
@@ -144,4 +144,32 @@ func (k *kycService) verifyUser(
 	newUser.ProviderHash = providerHash
 
 	return credSubject, nil
+}
+
+func (k *kycService) GetProviderByIdentityId(req *requests.GetProviderByIdentityIdRequest) (identityproviders.IdentityProviderName, error) {
+	user, err := k.db.UsersQ().WhereIdentityID(data.NewIdentityID(req.IdentityID)).Get()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get user from db with provided identityID")
+	}
+
+	civicHash := crypto.Keccak256(user.EthAddress.Bytes(), identityproviders.CivicIdentityProvider.Bytes())
+	gitcoinPassportHash := crypto.Keccak256(user.EthAddress.Bytes(), identityproviders.GitCoinPassportIdentityProvider.Bytes())
+	klerosHash := cryptoPkg.Keccak256(user.EthAddress.Bytes(), identityproviders.KlerosIdentityProvider.Bytes())
+	unstoppableDomainsHash := crypto.Keccak256(user.EthAddress.Bytes(), identityproviders.UnstoppableDomainsIdentityProvider.Bytes())
+	worldCoinHash := crypto.Keccak256(user.EthAddress.Bytes(), identityproviders.WorldCoinIdentityProvider.Bytes())
+
+	switch string(user.ProviderHash) {
+	case string(civicHash):
+		return identityproviders.CivicIdentityProvider, nil
+	case string(gitcoinPassportHash):
+		return identityproviders.GitCoinPassportIdentityProvider, nil
+	case string(klerosHash):
+		return identityproviders.KlerosIdentityProvider, nil
+	case string(unstoppableDomainsHash):
+		return identityproviders.UnstoppableDomainsIdentityProvider, nil
+	case string(worldCoinHash):
+		return identityproviders.WorldCoinIdentityProvider, nil
+	default:
+		return "", identityproviders.ErrProviderNotFound
+	}
 }
