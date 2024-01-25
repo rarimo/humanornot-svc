@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/rarimo/kyc-service/internal/data"
 	"github.com/rarimo/kyc-service/internal/service/api/requests"
 	identityproviders "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
+	unstopdom "github.com/rarimo/kyc-service/internal/service/core/identity_providers/unstoppable_domains"
 	"github.com/rarimo/kyc-service/internal/service/core/issuer"
 )
 
@@ -153,10 +155,15 @@ func (k *kycService) GetProviderByIdentityId(req *requests.GetProviderByIdentity
 		return "", errors.Wrap(err, "failed to get user from db with provided identityID")
 	}
 
+	domainData := unstopdom.Domain{}
+	if err := json.Unmarshal(user.ProviderData, &domainData); err != nil {
+		return "", errors.Wrap(err, "failed to unmarshal json")
+	}
+
 	civicHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.CivicIdentityProvider.Bytes())
 	gitcoinPassportHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.GitCoinPassportIdentityProvider.Bytes())
 	klerosHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.KlerosIdentityProvider.Bytes())
-	unstoppableDomainsHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.UnstoppableDomainsIdentityProvider.Bytes())
+	unstoppableDomainsHash := ethcrypto.Keccak256([]byte(domainData.Domain), identityproviders.UnstoppableDomainsIdentityProvider.Bytes())
 	worldCoinHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.WorldCoinIdentityProvider.Bytes())
 
 	switch string(user.ProviderHash) {
