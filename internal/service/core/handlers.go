@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	core "github.com/iden3/go-iden3-core"
+	core "github.com/iden3/go-iden3-core/v2"
 	"github.com/pkg/errors"
 
 	"github.com/rarimo/kyc-service/internal/crypto"

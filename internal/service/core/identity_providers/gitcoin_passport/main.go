@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	cryptoPkg "github.com/ethereum/go-ethereum/crypto"
 	"github.com/google/uuid"
-	core "github.com/iden3/go-iden3-core"
+	core "github.com/iden3/go-iden3-core/v2"
 	"github.com/imroc/req/v3"
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
