@@ -6,8 +6,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	cryptoPkg "github.com/ethereum/go-ethereum/crypto"
+	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
-	"gitlab.com/distributed_lab/logan/v3/errors"
 
 	"github.com/rarimo/kyc-service/internal/config"
 	"github.com/rarimo/kyc-service/internal/crypto"
