@@ -1,0 +1,28 @@
+parameters:
+  - name: identity_id
+    in: path
+    description: User's identity_id
+    required: true
+    schema:
+      type: string
+get:
+  tags:
+    - User associated provider
+  summary: Get user associated provider
+  description: >-
+    Get user associated provider
+  operationId: GetProviderByIdentityId
+  responses:
+    '200':
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/Provider'
+    '400':
+      description: Bad request
+    '500':
+      description: Internal error

@@ -1,0 +1,22 @@
+allOf:
+  - $ref: '#/components/schemas/ProviderKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - provider
+        properties:
+          provider:
+            type: string
+            format: string
+            example: 'civic'
+            description: User's associated provider
+            enum:
+              - unstoppable_domains
+              - civic
+              - gitcoin_passport
+              - worldcoin
+              - kleros

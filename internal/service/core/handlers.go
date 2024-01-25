@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/google/uuid"
 	core "github.com/iden3/go-iden3-core/v2"
 	"github.com/pkg/errors"
-
 	"github.com/rarimo/kyc-service/internal/crypto"
 	"github.com/rarimo/kyc-service/internal/data"
 	"github.com/rarimo/kyc-service/internal/service/api/requests"
+	identityproviders "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
 	"github.com/rarimo/kyc-service/internal/service/core/issuer"
 )
 
@@ -144,4 +145,32 @@ func (k *kycService) verifyUser(
 	newUser.ProviderHash = providerHash
 
 	return credSubject, nil
+}
+
+func (k *kycService) GetProviderByIdentityId(req *requests.GetProviderByIdentityIdRequest) (identityproviders.IdentityProviderName, error) {
+	user, err := k.db.UsersQ().WhereIdentityID(data.NewIdentityID(req.IdentityID)).Get()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get user from db with provided identityID")
+	}
+
+	civicHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.CivicIdentityProvider.Bytes())
+	gitcoinPassportHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.GitCoinPassportIdentityProvider.Bytes())
+	klerosHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.KlerosIdentityProvider.Bytes())
+	unstoppableDomainsHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.UnstoppableDomainsIdentityProvider.Bytes())
+	worldCoinHash := ethcrypto.Keccak256(user.EthAddress.Bytes(), identityproviders.WorldCoinIdentityProvider.Bytes())
+
+	switch string(user.ProviderHash) {
+	case string(civicHash):
+		return identityproviders.CivicIdentityProvider, nil
+	case string(gitcoinPassportHash):
+		return identityproviders.GitCoinPassportIdentityProvider, nil
+	case string(klerosHash):
+		return identityproviders.KlerosIdentityProvider, nil
+	case string(unstoppableDomainsHash):
+		return identityproviders.UnstoppableDomainsIdentityProvider, nil
+	case string(worldCoinHash):
+		return identityproviders.WorldCoinIdentityProvider, nil
+	default:
+		return "", identityproviders.ErrProviderNotFound
+	}
 }
