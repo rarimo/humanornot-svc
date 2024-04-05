@@ -155,6 +155,10 @@ func (k *kycService) GetProviderByIdentityId(req *requests.GetProviderByIdentity
 		return "", errors.Wrap(err, "failed to get user from db with provided identityID")
 	}
 
+	if user == nil {
+		return "", identityproviders.ErrUserNotFound
+	}
+
 	domainData := unstopdom.Domain{}
 	if err := json.Unmarshal(user.ProviderData, &domainData); err != nil {
 		return "", errors.Wrap(err, "failed to unmarshal json")

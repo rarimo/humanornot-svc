@@ -13,6 +13,7 @@ var (
 
 	// Not found errors
 	ErrProviderNotFound = errors.New("provider not found")
+	ErrUserNotFound     = errors.New("user not found")
 )
 
 type IdentityProviderName string
