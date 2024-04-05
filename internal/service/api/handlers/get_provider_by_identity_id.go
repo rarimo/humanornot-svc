@@ -21,7 +21,7 @@ func GetProviderByIdentityId(w http.ResponseWriter, r *http.Request) {
 
 	provider, err := KYCService(r).GetProviderByIdentityId(req)
 	switch {
-	case errors.Is(err, identityproviders.ErrProviderNotFound):
+	case errors.Is(err, identityproviders.ErrProviderNotFound), errors.Is(err, identityproviders.ErrUserNotFound):
 		Log(r).WithField("reason", err).Debug("Not found")
 		ape.RenderErr(w, problems.NotFound())
 		return
