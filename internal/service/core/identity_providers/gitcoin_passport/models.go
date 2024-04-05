@@ -1,6 +1,7 @@
 package gcpsp
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -74,13 +75,10 @@ type (
 			IssuanceDate      string   `json:"issuanceDate"`
 			ExpirationDate    string   `json:"expirationDate"`
 			CredentialSubject struct {
-				Id      string `json:"id"`
-				Hash    string `json:"hash"`
-				Context []struct {
-					Hash     string `json:"hash"`
-					Provider string `json:"provider"`
-				} `json:"@context"`
-				Provider string `json:"provider"`
+				Id       string   `json:"id"`
+				Hash     string   `json:"hash"`
+				Context  Contexts `json:"@context"`
+				Provider string   `json:"provider"`
 			} `json:"credentialSubject"`
 		} `json:"credential"`
 		Metadata *struct {
@@ -98,6 +96,25 @@ type (
 		} `json:"metadata,omitempty"`
 	}
 )
+
+type Contexts []Context
+
+type Context struct {
+	Hash     string `json:"hash"`
+	Provider string `json:"provider"`
+}
+
+func (c *Contexts) UnmarshalJSON(data []byte) error {
+	var single Context
+	err := json.Unmarshal(data, &single)
+	if err == nil {
+		*c = append(*c, single)
+		return nil
+	}
+	// ignore error, try parse array into similar type
+	type SimilarContexts Contexts
+	return json.Unmarshal(data, (*SimilarContexts)(c))
+}
 
 var (
 	ErrUnexpectedStatus     = errors.New("unexpected status")
