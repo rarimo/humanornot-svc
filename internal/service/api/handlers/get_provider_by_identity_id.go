@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
-	"github.com/rarimo/kyc-service/internal/service/api/requests"
-	identityproviders "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
-	"github.com/rarimo/kyc-service/resources"
+	"github.com/rarimo/humanornot-svc/internal/service/api/requests"
+	identityproviders "github.com/rarimo/humanornot-svc/internal/service/core/identity_providers"
+	"github.com/rarimo/humanornot-svc/resources"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 )
@@ -19,7 +19,7 @@ func GetProviderByIdentityId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	provider, err := KYCService(r).GetProviderByIdentityId(req)
+	provider, err := HumanornotSvc(r).GetProviderByIdentityId(req)
 	switch {
 	case errors.Is(err, identityproviders.ErrProviderNotFound), errors.Is(err, identityproviders.ErrUserNotFound):
 		Log(r).WithField("reason", err).Debug("Not found")

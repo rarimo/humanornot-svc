@@ -46,12 +46,12 @@ kleros:
   eth_rpc_url:
   proof_of_humanity_contract:
 
-kyc_service:
+humanornot_svc:
   nonce_life_time: 30m
 
 cop:
   disabled: true
   endpoint: "http://..."
   upstream: "http://..."
-  service_name: kyc-service
+  service_name: humanornot-svc
   service_port: 80

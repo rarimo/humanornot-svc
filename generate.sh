@@ -3,8 +3,8 @@
 GENERATOR_IMAGE=registry.gitlab.com/tokend/openapi-go-generator:69f004b58152c83f007b593cc13e94b81d7200da
 
 
-GENERATED="${GOPATH}/src/github.com/rarimo/kyc-service/resources"
-OPENAPI_DIR="${GOPATH}/src/github.com/rarimo/kyc-service/docs/web_deploy"
+GENERATED="${GOPATH}/src/github.com/rarimo/humanornot-svc/resources"
+OPENAPI_DIR="${GOPATH}/src/github.com/rarimo/humanornot-svc/docs/web_deploy"
 PACKAGE_NAME=resources
 
 function printHelp {

@@ -9,28 +9,28 @@ import (
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 
-	"github.com/rarimo/kyc-service/internal/config"
-	"github.com/rarimo/kyc-service/internal/service/core"
+	"github.com/rarimo/humanornot-svc/internal/config"
+	"github.com/rarimo/humanornot-svc/internal/service/core"
 )
 
 type service struct {
-	log        *logan.Entry
-	copus      types.Copus
-	listener   net.Listener
-	kycService core.KYCService
+	log           *logan.Entry
+	copus         types.Copus
+	listener      net.Listener
+	humanornotSvc core.HumanornotSvc
 }
 
 func newService(cfg config.Config, ctx context.Context) *service {
-	kycService, err := core.NewKYCService(cfg, ctx)
+	humanornotSvc, err := core.NewHumanornotSvc(cfg, ctx)
 	if err != nil {
-		panic(errors.Wrap(err, "failed to create new KYC service"))
+		panic(errors.Wrap(err, "failed to create new humanornot service"))
 	}
 
 	return &service{
-		log:        cfg.Log(),
-		copus:      cfg.Copus(),
-		listener:   cfg.Listener(),
-		kycService: kycService,
+		log:           cfg.Log(),
+		copus:         cfg.Copus(),
+		listener:      cfg.Listener(),
+		humanornotSvc: humanornotSvc,
 	}
 }
 

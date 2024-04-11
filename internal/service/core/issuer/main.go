@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/rarimo/kyc-service/internal/config"
+	"github.com/rarimo/humanornot-svc/internal/config"
 
 	iden3core "github.com/iden3/go-iden3-core/v2"
 	"github.com/imroc/req/v3"

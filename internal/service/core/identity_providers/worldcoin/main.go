@@ -9,10 +9,10 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/logan/v3"
 
-	"github.com/rarimo/kyc-service/internal/config"
-	"github.com/rarimo/kyc-service/internal/data"
-	providers "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
-	"github.com/rarimo/kyc-service/internal/service/core/issuer"
+	"github.com/rarimo/humanornot-svc/internal/config"
+	"github.com/rarimo/humanornot-svc/internal/data"
+	providers "github.com/rarimo/humanornot-svc/internal/service/core/identity_providers"
+	"github.com/rarimo/humanornot-svc/internal/service/core/issuer"
 )
 
 // Worldcoin is a struct that implements the identityproviders.IdentityProvider interface

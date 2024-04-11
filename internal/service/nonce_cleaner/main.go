@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/rarimo/kyc-service/internal/config"
-	"github.com/rarimo/kyc-service/internal/data"
-	"github.com/rarimo/kyc-service/internal/data/pg"
+	"github.com/rarimo/humanornot-svc/internal/config"
+	"github.com/rarimo/humanornot-svc/internal/data"
+	"github.com/rarimo/humanornot-svc/internal/data/pg"
 
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/running"

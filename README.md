@@ -1,4 +1,4 @@
-# kyc-service
+# humanornot-svc
 
 ## Description
 
@@ -15,8 +15,8 @@ Integrated identity provider:
 ## Install
 
   ```
-  git clone github.com/rarimo/kyc-service
-  cd kyc-service
+  git clone github.com/rarimo/humanornot-svc
+  cd humanornot-svc
   go build main.go
   export KV_VIPER_FILE=./config.yaml
   ./main migrate up
@@ -47,8 +47,8 @@ Make sure that docker installed.
 use `docker run ` with `-p 8080:80` to expose port 80 to 8080
 
   ```
-  docker build -t github.com/rarimo/kyc-service .
-  docker run -e KV_VIPER_FILE=/config.yaml github.com/rarimo/kyc-service
+  docker build -t github.com/rarimo/humanornot-svc .
+  docker run -e KV_VIPER_FILE=/config.yaml github.com/rarimo/humanornot-svc
   ```
 
 ## Running from Source

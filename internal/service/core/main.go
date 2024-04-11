@@ -2,26 +2,27 @@ package core
 
 import (
 	"context"
-	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/kleros"
 	"time"
 
-	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/civic"
-	gcpsp "github.com/rarimo/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
-	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/worldcoin"
+	"github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/kleros"
+
+	"github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/civic"
+	gcpsp "github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/gitcoin_passport"
+	"github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/worldcoin"
 
 	"github.com/pkg/errors"
 
-	"github.com/rarimo/kyc-service/internal/config"
-	"github.com/rarimo/kyc-service/internal/data"
-	"github.com/rarimo/kyc-service/internal/data/pg"
-	"github.com/rarimo/kyc-service/internal/service/api/requests"
-	providers "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
-	unstopdom "github.com/rarimo/kyc-service/internal/service/core/identity_providers/unstoppable_domains"
-	"github.com/rarimo/kyc-service/internal/service/core/issuer"
+	"github.com/rarimo/humanornot-svc/internal/config"
+	"github.com/rarimo/humanornot-svc/internal/data"
+	"github.com/rarimo/humanornot-svc/internal/data/pg"
+	"github.com/rarimo/humanornot-svc/internal/service/api/requests"
+	providers "github.com/rarimo/humanornot-svc/internal/service/core/identity_providers"
+	unstopdom "github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/unstoppable_domains"
+	"github.com/rarimo/humanornot-svc/internal/service/core/issuer"
 )
 
-type KYCService interface {
-	New() KYCService
+type HumanornotSvc interface {
+	New() HumanornotSvc
 
 	NewVerifyRequest(*requests.VerifyRequest) (*data.User, error)
 	NewNonce(*requests.NonceRequest) (*data.Nonce, error)
@@ -29,7 +30,7 @@ type KYCService interface {
 	GetProviderByIdentityId(*requests.GetProviderByIdentityIdRequest) (providers.IdentityProviderName, error)
 }
 
-type kycService struct {
+type humanornotSvc struct {
 	db                data.MasterQ
 	issuer            issuer.Issuer
 	identityProviders map[providers.IdentityProviderName]providers.IdentityProvider
@@ -37,7 +38,7 @@ type kycService struct {
 	nonceLifetime time.Duration
 }
 
-func NewKYCService(cfg config.Config, ctx context.Context) (KYCService, error) {
+func NewHumanornotSvc(cfg config.Config, ctx context.Context) (HumanornotSvc, error) {
 	civicIdentityProvider, err := civic.NewIdentityProvider(
 		cfg.Log().WithField("provider", providers.CivicIdentityProvider),
 		pg.NewMasterQ(cfg.DB()),
@@ -58,10 +59,10 @@ func NewKYCService(cfg config.Config, ctx context.Context) (KYCService, error) {
 
 	isr := issuer.New(cfg.Log(), cfg.Issuer())
 
-	return &kycService{
+	return &humanornotSvc{
 		db:            pg.NewMasterQ(cfg.DB()),
 		issuer:        isr,
-		nonceLifetime: cfg.KYCService().NonceLifeTime,
+		nonceLifetime: cfg.HumanornotSvc().NonceLifeTime,
 		identityProviders: map[providers.IdentityProviderName]providers.IdentityProvider{
 			providers.UnstoppableDomainsIdentityProvider: unstopdom.NewIdentityProvider(
 				cfg.Log().WithField("provider", providers.UnstoppableDomainsIdentityProvider),
@@ -83,7 +84,7 @@ func NewKYCService(cfg config.Config, ctx context.Context) (KYCService, error) {
 	}, nil
 }
 
-func (k *kycService) New() KYCService {
+func (k *humanornotSvc) New() HumanornotSvc {
 	k.db = k.db.New()
 	return k
 }

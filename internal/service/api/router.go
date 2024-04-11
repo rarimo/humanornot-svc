@@ -6,8 +6,8 @@ import (
 	"github.com/go-chi/chi"
 	"gitlab.com/distributed_lab/ape"
 
-	"github.com/rarimo/kyc-service/internal/service/api/handlers"
-	"github.com/rarimo/kyc-service/internal/service/api/requests"
+	"github.com/rarimo/humanornot-svc/internal/service/api/handlers"
+	"github.com/rarimo/humanornot-svc/internal/service/api/requests"
 )
 
 func (s *service) router() chi.Router {
@@ -18,11 +18,11 @@ func (s *service) router() chi.Router {
 		ape.LoganMiddleware(s.log),
 		ape.CtxMiddleware(
 			handlers.CtxLog(s.log),
-			handlers.CtxKYCService(s.kycService),
+			handlers.CtxHumanornotSvc(s.humanornotSvc),
 		),
 	)
 
-	r.Route("/integrations/kyc-service", func(r chi.Router) {
+	r.Route("/integrations/humanornot-svc", func(r chi.Router) {
 		r.Route("/v1", func(r chi.Router) {
 			r.Route("/public", func(r chi.Router) {
 				r.Post(fmt.Sprintf("/verify/{%s}", requests.IdentityProviderPathParam), handlers.Verify)

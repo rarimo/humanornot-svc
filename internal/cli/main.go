@@ -7,14 +7,14 @@ import (
 	"sync"
 	"syscall"
 
-	nonceCleaner "github.com/rarimo/kyc-service/internal/service/nonce_cleaner"
+	nonceCleaner "github.com/rarimo/humanornot-svc/internal/service/nonce_cleaner"
 
 	"github.com/alecthomas/kingpin"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/logan/v3"
 
-	"github.com/rarimo/kyc-service/internal/config"
-	"github.com/rarimo/kyc-service/internal/service/api"
+	"github.com/rarimo/humanornot-svc/internal/config"
+	"github.com/rarimo/humanornot-svc/internal/service/api"
 )
 
 func Run(args []string) bool {
@@ -29,7 +29,7 @@ func Run(args []string) bool {
 	cfg := config.New(kv.MustFromEnv())
 	log = cfg.Log()
 
-	app := kingpin.New("kyc-service", "")
+	app := kingpin.New("humanornot-svc", "")
 
 	runCmd := app.Command("run", "run command")
 	serviceCmd := runCmd.Command("service", "run service")

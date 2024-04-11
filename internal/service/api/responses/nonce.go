@@ -1,8 +1,8 @@
 package responses
 
 import (
-	"github.com/rarimo/kyc-service/internal/crypto"
-	"github.com/rarimo/kyc-service/resources"
+	"github.com/rarimo/humanornot-svc/internal/crypto"
+	"github.com/rarimo/humanornot-svc/resources"
 )
 
 func NewNonce(nonce string) resources.NewNonceResponse {

@@ -3,7 +3,7 @@ package pg
 import (
 	"gitlab.com/distributed_lab/kit/pgdb"
 
-	"github.com/rarimo/kyc-service/internal/data"
+	"github.com/rarimo/humanornot-svc/internal/data"
 )
 
 const (

@@ -5,8 +5,8 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/pkg/errors"
 
-	"github.com/rarimo/kyc-service/internal/service/api/requests"
-	"github.com/rarimo/kyc-service/resources"
+	"github.com/rarimo/humanornot-svc/internal/service/api/requests"
+	"github.com/rarimo/humanornot-svc/resources"
 )
 
 var ErrIsNotRegistered = errors.New("user is not registered")

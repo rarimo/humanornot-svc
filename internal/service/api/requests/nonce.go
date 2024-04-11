@@ -8,7 +8,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/pkg/errors"
 
-	"github.com/rarimo/kyc-service/resources"
+	"github.com/rarimo/humanornot-svc/resources"
 )
 
 type NonceRequest struct {
