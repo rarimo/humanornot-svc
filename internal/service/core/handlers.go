@@ -9,15 +9,15 @@ import (
 	"github.com/google/uuid"
 	core "github.com/iden3/go-iden3-core/v2"
 	"github.com/pkg/errors"
-	"github.com/rarimo/kyc-service/internal/crypto"
-	"github.com/rarimo/kyc-service/internal/data"
-	"github.com/rarimo/kyc-service/internal/service/api/requests"
-	identityproviders "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
-	unstopdom "github.com/rarimo/kyc-service/internal/service/core/identity_providers/unstoppable_domains"
-	"github.com/rarimo/kyc-service/internal/service/core/issuer"
+	"github.com/rarimo/humanornot-svc/internal/crypto"
+	"github.com/rarimo/humanornot-svc/internal/data"
+	"github.com/rarimo/humanornot-svc/internal/service/api/requests"
+	identityproviders "github.com/rarimo/humanornot-svc/internal/service/core/identity_providers"
+	unstopdom "github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/unstoppable_domains"
+	"github.com/rarimo/humanornot-svc/internal/service/core/issuer"
 )
 
-func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, error) {
+func (k *humanornotSvc) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, error) {
 	prevUser, err := k.db.UsersQ().WhereIdentityID(data.NewIdentityID(req.IdentityID)).Get()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get user from db with the same identityID")
@@ -92,7 +92,7 @@ func (k *kycService) NewVerifyRequest(req *requests.VerifyRequest) (*data.User, 
 	return &newUser, nil
 }
 
-func (k *kycService) NewNonce(req *requests.NonceRequest) (*data.Nonce, error) {
+func (k *humanornotSvc) NewNonce(req *requests.NonceRequest) (*data.Nonce, error) {
 	if err := k.db.NonceQ().WhereEthAddress(req.Address).Delete(); err != nil {
 		return nil, errors.Wrap(err, "failed to delete old nonce")
 	}
@@ -116,7 +116,7 @@ func (k *kycService) NewNonce(req *requests.NonceRequest) (*data.Nonce, error) {
 	return nonce, nil
 }
 
-func (k *kycService) GetVerifyStatus(req *requests.VerifyStatusRequest) (*data.User, error) {
+func (k *humanornotSvc) GetVerifyStatus(req *requests.VerifyStatusRequest) (*data.User, error) {
 	user, err := k.db.UsersQ().WhereID(req.VerifyID).Get()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get user from db")
@@ -128,7 +128,7 @@ func (k *kycService) GetVerifyStatus(req *requests.VerifyStatusRequest) (*data.U
 	return user, nil
 }
 
-func (k *kycService) verifyUser(
+func (k *humanornotSvc) verifyUser(
 	req *requests.VerifyRequest, newUser *data.User,
 ) (*issuer.IdentityProvidersCredentialSubject, error) {
 	credSubject, providerHash, err := k.identityProviders[req.IdentityProviderName].Verify(newUser, req.ProviderData)
@@ -149,7 +149,7 @@ func (k *kycService) verifyUser(
 	return credSubject, nil
 }
 
-func (k *kycService) GetProviderByIdentityId(req *requests.GetProviderByIdentityIdRequest) (identityproviders.IdentityProviderName, error) {
+func (k *humanornotSvc) GetProviderByIdentityId(req *requests.GetProviderByIdentityIdRequest) (identityproviders.IdentityProviderName, error) {
 	user, err := k.db.UsersQ().WhereIdentityID(data.NewIdentityID(req.IdentityID)).Get()
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get user from db with provided identityID")

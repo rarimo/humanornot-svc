@@ -3,7 +3,7 @@ package cli
 import (
 	"context"
 
-	"github.com/rarimo/kyc-service/internal/config"
+	"github.com/rarimo/humanornot-svc/internal/config"
 )
 
 type (

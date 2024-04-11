@@ -1,8 +1,8 @@
 package identityproviders
 
 import (
-	"github.com/rarimo/kyc-service/internal/data"
-	"github.com/rarimo/kyc-service/internal/service/core/issuer"
+	"github.com/rarimo/humanornot-svc/internal/data"
+	"github.com/rarimo/humanornot-svc/internal/service/core/issuer"
 )
 
 type IdentityProvider interface {

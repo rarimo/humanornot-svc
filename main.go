@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/rarimo/kyc-service/internal/cli"
+	"github.com/rarimo/humanornot-svc/internal/cli"
 )
 
 func main() {

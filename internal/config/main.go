@@ -20,7 +20,7 @@ type Config interface {
 	GitcoinPassportSettings() *GitcoinPassportSettings
 	Kleros() *Kleros
 	Issuer() *Issuer
-	KYCService() *KYCService
+	HumanornotSvc() *HumanornotSvc
 }
 
 type config struct {
@@ -36,7 +36,7 @@ type config struct {
 	worldcoinSettings       comfig.Once
 	kleros                  comfig.Once
 	issuer                  comfig.Once
-	kycService              comfig.Once
+	humanOrNotSvc           comfig.Once
 }
 
 func New(getter kv.Getter) Config {

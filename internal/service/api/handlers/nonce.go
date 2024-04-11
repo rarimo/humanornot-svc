@@ -6,8 +6,8 @@ import (
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 
-	"github.com/rarimo/kyc-service/internal/service/api/requests"
-	"github.com/rarimo/kyc-service/internal/service/api/responses"
+	"github.com/rarimo/humanornot-svc/internal/service/api/requests"
+	"github.com/rarimo/humanornot-svc/internal/service/api/responses"
 )
 
 func GetNonce(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +17,7 @@ func GetNonce(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nonce, err := KYCService(r).NewNonce(req)
+	nonce, err := HumanornotSvc(r).NewNonce(req)
 	switch {
 	case err != nil:
 		Log(r).WithError(err).Error("Failed to create new nonce")

@@ -9,12 +9,12 @@ import (
 	"gitlab.com/distributed_lab/logan/v3"
 	"gitlab.com/distributed_lab/logan/v3/errors"
 
-	"github.com/rarimo/kyc-service/internal/config"
-	"github.com/rarimo/kyc-service/internal/crypto"
-	"github.com/rarimo/kyc-service/internal/data"
-	providers "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
-	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/kleros/contracts"
-	"github.com/rarimo/kyc-service/internal/service/core/issuer"
+	"github.com/rarimo/humanornot-svc/internal/config"
+	"github.com/rarimo/humanornot-svc/internal/crypto"
+	"github.com/rarimo/humanornot-svc/internal/data"
+	providers "github.com/rarimo/humanornot-svc/internal/service/core/identity_providers"
+	"github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/kleros/contracts"
+	"github.com/rarimo/humanornot-svc/internal/service/core/issuer"
 )
 
 type Kleros struct {

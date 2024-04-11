@@ -7,16 +7,16 @@ import (
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 
-	providers "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
-	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/civic"
-	gcpsp "github.com/rarimo/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
-	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/kleros"
-	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/worldcoin"
+	providers "github.com/rarimo/humanornot-svc/internal/service/core/identity_providers"
+	"github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/civic"
+	gcpsp "github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/gitcoin_passport"
+	"github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/kleros"
+	"github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/worldcoin"
 
-	"github.com/rarimo/kyc-service/internal/data"
-	"github.com/rarimo/kyc-service/internal/service/api/requests"
-	"github.com/rarimo/kyc-service/internal/service/api/responses"
-	"github.com/rarimo/kyc-service/internal/service/core"
+	"github.com/rarimo/humanornot-svc/internal/data"
+	"github.com/rarimo/humanornot-svc/internal/service/api/requests"
+	"github.com/rarimo/humanornot-svc/internal/service/api/responses"
+	"github.com/rarimo/humanornot-svc/internal/service/core"
 )
 
 func Verify(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +27,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := KYCService(r).NewVerifyRequest(req)
+	user, err := HumanornotSvc(r).NewVerifyRequest(req)
 	switch {
 	case errors.Is(err, providers.ErrInvalidVerificationData):
 		Log(r).WithField("reason", err).

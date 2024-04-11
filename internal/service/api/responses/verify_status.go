@@ -1,8 +1,8 @@
 package responses
 
 import (
-	"github.com/rarimo/kyc-service/internal/data"
-	"github.com/rarimo/kyc-service/resources"
+	"github.com/rarimo/humanornot-svc/internal/data"
+	"github.com/rarimo/humanornot-svc/resources"
 )
 
 func NewVerifyStatus(user *data.User) resources.VerifyStatusRequest {

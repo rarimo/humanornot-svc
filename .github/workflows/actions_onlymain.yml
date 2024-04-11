@@ -1,4 +1,4 @@
-name: Build KYC service docker image
+name: Build Humanornot service docker image
 on:
   push:
     branches:

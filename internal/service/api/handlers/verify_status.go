@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/rarimo/kyc-service/internal/service/api/requests"
-	"github.com/rarimo/kyc-service/internal/service/api/responses"
-	"github.com/rarimo/kyc-service/internal/service/core"
+	"github.com/rarimo/humanornot-svc/internal/service/api/requests"
+	"github.com/rarimo/humanornot-svc/internal/service/api/responses"
+	"github.com/rarimo/humanornot-svc/internal/service/core"
 )
 
 var TickerDuration = time.Second
@@ -39,7 +39,7 @@ func GetVerifyStatus(w http.ResponseWriter, r *http.Request) {
 	ticker := time.NewTicker(TickerDuration)
 
 	for range ticker.C {
-		user, err := KYCService(r).GetVerifyStatus(req)
+		user, err := HumanornotSvc(r).GetVerifyStatus(req)
 		switch {
 		case errors.Is(err, core.ErrUserNotFound):
 			continue

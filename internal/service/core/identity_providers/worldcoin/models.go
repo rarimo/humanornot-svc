@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/rarimo/kyc-service/resources"
+	"github.com/rarimo/humanornot-svc/resources"
 )
 
 const (

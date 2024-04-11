@@ -1,4 +1,4 @@
-module github.com/rarimo/kyc-service
+module github.com/rarimo/humanornot-svc
 
 go 1.21
 

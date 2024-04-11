@@ -4,35 +4,35 @@ project: 'backend'
 image: builder
 from: golang:1.21-alpine
 docker:
-  WORKDIR: /go/src/github.com/rarimo/kyc-service
+  WORKDIR: /go/src/github.com/rarimo/humanornot-svc
 git:
 - add: /
-  to: /go/src/github.com/rarimo/kyc-service
+  to: /go/src/github.com/rarimo/humanornot-svc
   stageDependencies:
     setup:
     - "**/*"
 shell:
   install:
     - apk add git build-base
-    - cd /go/src/github.com/rarimo/kyc-service
+    - cd /go/src/github.com/rarimo/humanornot-svc
     - go mod tidy
   setup:
   - export CGO_ENABLED=0
   - export GO111MODULE=on
   - export GOOS=linux
-  - cd /go/src/github.com/rarimo/kyc-service
-  - go build -o /usr/local/bin/kyc-service  /go/src/github.com/rarimo/kyc-service
+  - cd /go/src/github.com/rarimo/humanornot-svc
+  - go build -o /usr/local/bin/humanornot-svc  /go/src/github.com/rarimo/humanornot-svc
 
 ---
 image: service
 from: alpine:3.9
 docker:
-  ENTRYPOINT: kyc-service
+  ENTRYPOINT: humanornot-svc
 shell:
   setup:
   - apk add --no-cache ca-certificates
 import:
 - image: builder
-  add: /usr/local/bin/kyc-service
-  to: /usr/local/bin/kyc-service
+  add: /usr/local/bin/humanornot-svc
+  to: /usr/local/bin/humanornot-svc
   after: setup

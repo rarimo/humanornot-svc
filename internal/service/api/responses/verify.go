@@ -6,14 +6,14 @@ import (
 
 	"github.com/google/jsonapi"
 	"github.com/google/uuid"
-	"github.com/rarimo/kyc-service/internal/service/core"
-	providers "github.com/rarimo/kyc-service/internal/service/core/identity_providers"
-	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/civic"
-	gcpsp "github.com/rarimo/kyc-service/internal/service/core/identity_providers/gitcoin_passport"
-	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/kleros"
-	"github.com/rarimo/kyc-service/internal/service/core/identity_providers/worldcoin"
+	"github.com/rarimo/humanornot-svc/internal/service/core"
+	providers "github.com/rarimo/humanornot-svc/internal/service/core/identity_providers"
+	"github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/civic"
+	gcpsp "github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/gitcoin_passport"
+	"github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/kleros"
+	"github.com/rarimo/humanornot-svc/internal/service/core/identity_providers/worldcoin"
 
-	"github.com/rarimo/kyc-service/resources"
+	"github.com/rarimo/humanornot-svc/resources"
 )
 
 const (

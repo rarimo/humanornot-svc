@@ -34,7 +34,7 @@ post:
     '400':
       description: Bad request
     '401':
-      description: Unauthorized. KYC failed
+      description: Unauthorized. Humanornot failed to check humanity.
       content:
         application/json:
           schema:

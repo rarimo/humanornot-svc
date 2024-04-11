@@ -8,21 +8,21 @@ import (
 	"gitlab.com/distributed_lab/kit/kv"
 )
 
-type KYCService struct {
+type HumanornotSvc struct {
 	NonceLifeTime time.Duration `fig:"nonce_life_time,required"`
 }
 
-func (c *config) KYCService() *KYCService {
-	return c.kycService.Do(func() interface{} {
-		cfg := KYCService{}
+func (c *config) HumanornotSvc() *HumanornotSvc {
+	return c.humanOrNotSvc.Do(func() interface{} {
+		cfg := HumanornotSvc{}
 		err := figure.
 			Out(&cfg).
-			From(kv.MustGetStringMap(c.getter, "kyc_service")).
+			From(kv.MustGetStringMap(c.getter, "humanornot_svc")).
 			Please()
 		if err != nil {
 			panic(errors.Wrap(err, "failed to figure out"))
 		}
 
 		return &cfg
-	}).(*KYCService)
+	}).(*HumanornotSvc)
 }
